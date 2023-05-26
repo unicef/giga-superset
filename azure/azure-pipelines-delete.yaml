@@ -1,0 +1,15 @@
+trigger:
+- main
+
+pool:
+  vmImage: ubuntu-latest
+
+steps:
+- task: HelmDeploy@0
+  displayName: 'Delete Superset Helm'
+  inputs:
+    connectionType: Kubernetes Service Connection
+    kubernetesServiceEndpoint: Superset-DEV-uni-apps-aks-dev-ictd-oi-superset-dev-1684231822360
+    command: 'uninstall'
+    arguments: 'superset'
+    namespace: ictd-oi-superset-dev
