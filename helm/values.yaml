@@ -780,7 +780,7 @@ redis:
     persistence:
       ##
       ## Use a PVC to persist data.
-      enabled: false
+      enabled: true
       ##
       ## Persistent class
       # storageClass: classname
