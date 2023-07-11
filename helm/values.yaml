@@ -640,11 +640,11 @@ init:
   loadExamples: false
   createAdmin: true
   adminUser:
-    username: admin
+    username:
     firstname: Superset
     lastname: Admin
-    email: bmusisi@unicef.org
-    password: Gag@ga6m3an
+    email:
+    password:
   # -- List of initContainers
   # @default -- a container waiting for postgres
   initContainers:

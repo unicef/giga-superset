@@ -7,6 +7,9 @@ pool:
 variables:
   kubernetesServiceConnection: Superset-DEV-uni-apps-aks-dev-ictd-oi-superset-dev-1684231822360
   kubernetesNamespace: ictd-oi-superset-dev
+  adminEmail: $(ADMIN_EMAIL)
+  adminUsername: $(ADMIN_USERNAME)
+  adminPassword: $(ADMIN_PASSWORD
 
 steps:
 - task: HelmDeploy@0
@@ -30,6 +33,7 @@ steps:
     releaseName: superset
     valueFile: helm/values.yaml
     namespace: $(kubernetesNamespace)
+    arguments: "--set init.adminUser.username=$(adminUsername),init.adminUser.email=$(adminEmail),init.adminUser.password=$(adminPassword)"
 
 - task: Kubernetes@1
   displayName: Set up Ingress
