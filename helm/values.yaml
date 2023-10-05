@@ -74,7 +74,7 @@ extraEnv:
   # SERVER_LIMIT_REQUEST_LINE: 0
   # SERVER_LIMIT_REQUEST_FIELD_SIZE: 0
 
-  OAUTH_HOME_DOMAIN: "io-superset-dev.unitst.org"
+  # OAUTH_HOME_DOMAIN: ...
   # # If a whitelist is not set, any address that can use your OAuth2 endpoint will be able to login.
   # #   this includes any random Gmail address if your OAuth2 Web App is set to External.
   # OAUTH_WHITELIST_REGEX: ...
