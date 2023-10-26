@@ -28,8 +28,6 @@ stages:
             displayName: 'Add Superset Helm Repo'
             enabled: true
             inputs:
-              connectionType: Kubernetes Service Connection
-              kubernetesServiceEndpoint: $(kubernetesServiceConnection)
               command: 'repo'
               arguments: 'add superset https://apache.github.io/superset'
               namespace: $(kubernetesNamespace)
@@ -37,8 +35,6 @@ stages:
           - task: HelmDeploy@0
             displayName: Helm deploy Superset
             inputs:
-              connectionType: Kubernetes Service Connection
-              kubernetesServiceEndpoint: $(kubernetesServiceConnection)
               command: upgrade
               chartType: Name
               chartName: superset/superset
@@ -50,8 +46,6 @@ stages:
           - task: Kubernetes@1
             displayName: Set up Ingress
             inputs:
-              connectionType: Kubernetes Service Connection
-              kubernetesServiceEndpoint: $(kubernetesServiceConnection)
               command: apply
               arguments: '-f azure/ingress.yaml'
               namespace: $(kubernetesNamespace)
