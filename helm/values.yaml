@@ -96,8 +96,16 @@ extraSecretEnv:
   GOOGLE_SECRET:
   # Azure Credentials ID For Azure Auth
   AZURE_TENANT_ID:
-
-
+  AZURE_CLIENT_ID:
+    valueFrom:
+      secretKeyRef:
+        name: oi-superset-secrets-dev
+        key: AZURE_CLIENT_ID
+  AZURE_CLIENT_SECRET:
+    valueFrom:
+      secretKeyRef:
+        name: oi-superset-secrets-dev
+        key: AZURE_CLIENT_ID
 # -- Extra files to mount on `/app/pythonpath`
 extraConfigs: {}
   # import_datasources.yaml: |
@@ -147,22 +155,6 @@ configOverrides:
     AUTH_TYPE = AUTH_OAUTH
     OAUTH_PROVIDERS = [
         {
-            "name": "google",
-            "whitelist": [ os.getenv("OAUTH_WHITELIST_REGEX", "") ],
-            "icon": "fa-google",
-            "token_key": "access_token",
-            "remote_app": {
-                "client_id": os.environ.get("GOOGLE_KEY"),
-                "client_secret": os.environ.get("GOOGLE_SECRET"),
-                "api_base_url": "https://www.googleapis.com/oauth2/v2/",
-                "client_kwargs": {"scope": "email profile"},
-                "request_token_url": None,
-                "access_token_url": "https://accounts.google.com/o/oauth2/token",
-                "authorize_url": "https://accounts.google.com/o/oauth2/auth",
-                "authorize_params": {"hd": os.getenv("OAUTH_HOME_DOMAIN", "")}
-            }
-        },
-        {
             "name": "azure",
             "icon": "fa-windows",
             "token_key": "access_token",
@@ -180,7 +172,23 @@ configOverrides:
                 "access_token_url": f"https://login.microsoftonline.com/{os.environ.get('AZURE_TENANT_ID')}/oauth2/token",
                 "authorize_url": f"https://login.microsoftonline.com/{os.environ.get('AZURE_TENANT_ID')}/oauth2/authorize",
             },
-        }
+        },
+        {
+            "name": "google",
+            "whitelist": [ os.getenv("OAUTH_WHITELIST_REGEX", "") ],
+            "icon": "fa-google",
+            "token_key": "access_token",
+            "remote_app": {
+                "client_id": os.environ.get("GOOGLE_KEY"),
+                "client_secret": os.environ.get("GOOGLE_SECRET"),
+                "api_base_url": "https://www.googleapis.com/oauth2/v2/",
+                "client_kwargs": {"scope": "email profile"},
+                "request_token_url": None,
+                "access_token_url": "https://accounts.google.com/o/oauth2/token",
+                "authorize_url": "https://accounts.google.com/o/oauth2/auth",
+                "authorize_params": {"hd": os.getenv("OAUTH_HOME_DOMAIN", "")}
+            }
+        },
     ]
     # Map Authlib roles to superset roles
     AUTH_ROLE_ADMIN = 'Admin'
