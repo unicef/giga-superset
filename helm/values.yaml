@@ -197,7 +197,7 @@ configOverrides:
     # Will allow user self registration, allowing to create Flask users from Authorized User
     AUTH_USER_REGISTRATION = True
     # The default user self registration role
-    AUTH_USER_REGISTRATION_ROLE = "Gamma"
+    AUTH_USER_REGISTRATION_ROLE = "Admin"
   # secret: |
   #   # Generate your own secret key for encryption. Use openssl rand -base64 42 to generate a good key
   #   SECRET_KEY = 'YOUR_OWN_RANDOM_GENERATED_SECRET_KEY'
