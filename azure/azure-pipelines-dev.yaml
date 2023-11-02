@@ -7,45 +7,39 @@ pool:
 variables:
   kubernetesServiceConnection: $(KUBERNETES_SERVICE_CONNECTION)
   kubernetesNamespace: $(KUBERNETES_NAMESPACE)
-  kubernetesEnvironment: $(KUBERNETES_ENVIRONMENT)
   adminEmail: $(ADMIN_EMAIL)
   adminUsername: $(ADMIN_USERNAME)
   adminPassword: $(ADMIN_PASSWORD)
 
-stages:
-- stage: Deploy
-  displayName: Superset Deploy Stage
-  jobs:
-  - deployment: Deploy
-    displayName: Superset Deployment
-    environment: $(kubernetesEnvironment)
-    strategy:
-      runOnce:
-        deploy:
-          steps:
-          - checkout: self
-          - task: HelmDeploy@0
-            displayName: 'Add Superset Helm Repo'
-            enabled: true
-            inputs:
-              command: 'repo'
-              arguments: 'add superset https://apache.github.io/superset'
-              namespace: $(kubernetesNamespace)
+steps:
+- task: HelmDeploy@0
+  displayName: 'Add Superset Helm Repo'
+  enabled: true
+  inputs:
+    connectionType: Kubernetes Service Connection
+    kubernetesServiceEndpoint: $(kubernetesServiceConnection)
+    command: 'repo'
+    arguments: 'add superset https://apache.github.io/superset'
+    namespace: $(kubernetesNamespace)
 
-          - task: HelmDeploy@0
-            displayName: Helm deploy Superset
-            inputs:
-              command: upgrade
-              chartType: Name
-              chartName: superset/superset
-              releaseName: superset
-              valueFile: helm/values.yaml
-              namespace: $(kubernetesNamespace)
-              arguments: "--set init.adminUser.username=$(adminUsername),init.adminUser.email=$(adminEmail),init.adminUser.password=$(adminPassword),extraSecretEnv.GOOGLE_KEY=$(CLIENT_ID_GOOGLE),extraSecretEnv.GOOGLE_SECRET=$(CLIENT_SECRET_GOOGLE),extraSecretEnv.AZURE_TENANT_ID=$(AZURE_TENANT_ID)"
+- task: HelmDeploy@0
+  displayName: Helm deploy Superset
+  inputs:
+    connectionType: Kubernetes Service Connection
+    kubernetesServiceEndpoint: $(kubernetesServiceConnection)
+    command: upgrade
+    chartType: Name
+    chartName: superset/superset
+    releaseName: superset
+    valueFile: helm/values.yaml
+    namespace: $(kubernetesNamespace)
+    arguments: "--set init.adminUser.username=$(adminUsername),init.adminUser.email=$(adminEmail),init.adminUser.password=$(adminPassword),extraSecretEnv.GOOGLE_KEY=$(CLIENT_ID_GOOGLE),extraSecretEnv.GOOGLE_SECRET=$(CLIENT_SECRET_GOOGLE)"
 
-          - task: Kubernetes@1
-            displayName: Set up Ingress
-            inputs:
-              command: apply
-              arguments: '-f azure/ingress.yaml'
-              namespace: $(kubernetesNamespace)
+- task: Kubernetes@1
+  displayName: Set up Ingress
+  inputs:
+    connectionType: Kubernetes Service Connection
+    kubernetesServiceEndpoint: $(kubernetesServiceConnection)
+    command: apply
+    arguments: '-f azure/ingress.yaml'
+    namespace: $(kubernetesNamespace)
