@@ -80,7 +80,17 @@ extraEnv:
   # OAUTH_WHITELIST_REGEX: ...
 
 # -- Extra environment variables in RAW format that will be passed into pods
-extraEnvRaw: []
+extraEnvRaw:
+  - name: AZURE_CLIENT_ID
+    valueFrom:
+      secretKeyRef:
+        name: oi-superset-secrets-dev
+        key: AZURE_CLIENT_ID
+  - name: AZURE_CLIENT_SECRET
+    valueFrom:
+      secretKeyRef:
+        name: oi-superset-secrets-dev
+        key: AZURE_CLIENT_ID
   # Load DB password from other secret (e.g. for zalando operator)
   # - name: DB_PASS
   #   valueFrom:
@@ -93,7 +103,9 @@ extraSecretEnv:
   # MAPBOX_API_KEY: ...
   # # Google API Keys: https://console.cloud.google.com/apis/credentials
   GOOGLE_KEY: 
-  GOOGLE_SECRET: 
+  GOOGLE_SECRET:
+  # Azure Credentials ID For Azure Auth
+  AZURE_TENANT_ID:
 
 # -- Extra files to mount on `/app/pythonpath`
 extraConfigs: {}
@@ -144,6 +156,25 @@ configOverrides:
     AUTH_TYPE = AUTH_OAUTH
     OAUTH_PROVIDERS = [
         {
+            "name": "azure",
+            "icon": "fa-windows",
+            "token_key": "access_token",
+            "remote_app": {
+                "client_id": os.environ.get("AZURE_CLIENT_ID"),
+                "client_secret": os.environ.get("AZURE_CLIENT_SECRET"),
+                "api_base_url": f"https://login.microsoftonline.com/{os.environ.get('AZURE_TENANT_ID')}/oauth2",
+                "client_kwargs": {
+                    "scope": "User.read name preferred_username email profile upn",
+                    "resource": os.environ.get("AZURE_CLIENT_ID"),
+                    # Optionally enforce signature JWT verification
+                    "verify_signature": False
+                },
+                "request_token_url": None,
+                "access_token_url": f"https://login.microsoftonline.com/{os.environ.get('AZURE_TENANT_ID')}/oauth2/token",
+                "authorize_url": f"https://login.microsoftonline.com/{os.environ.get('AZURE_TENANT_ID')}/oauth2/authorize",
+            },
+        },
+        {
             "name": "google",
             "whitelist": [ os.getenv("OAUTH_WHITELIST_REGEX", "") ],
             "icon": "fa-google",
@@ -158,7 +189,7 @@ configOverrides:
                 "authorize_url": "https://accounts.google.com/o/oauth2/auth",
                 "authorize_params": {"hd": os.getenv("OAUTH_HOME_DOMAIN", "")}
             }
-        }
+        },
     ]
     # Map Authlib roles to superset roles
     AUTH_ROLE_ADMIN = 'Admin'

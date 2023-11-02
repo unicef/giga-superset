@@ -5,8 +5,8 @@ pool:
   vmImage: ubuntu-latest
 
 variables:
-  kubernetesServiceConnection: Superset-DEV-uni-apps-aks-dev-ictd-oi-superset-dev-1684231822360
-  kubernetesNamespace: ictd-oi-superset-dev
+  kubernetesServiceConnection: $(KUBERNETES_SERVICE_CONNECTION)
+  kubernetesNamespace: $(KUBERNETES_NAMESPACE)
 
 steps:
 - task: HelmDeploy@0
