@@ -80,17 +80,7 @@ extraEnv:
   # OAUTH_WHITELIST_REGEX: ...
 
 # -- Extra environment variables in RAW format that will be passed into pods
-extraEnvRaw:
-  - name: AZURE_CLIENT_ID
-    valueFrom:
-      secretKeyRef:
-        name: oi-superset-secrets-dev
-        key: AZURE_CLIENT_ID
-  - name: AZURE_CLIENT_SECRET
-    valueFrom:
-      secretKeyRef:
-        name: oi-superset-secrets-dev
-        key: AZURE_CLIENT_ID
+extraEnvRaw: []
   # Load DB password from other secret (e.g. for zalando operator)
   # - name: DB_PASS
   #   valueFrom:
@@ -104,8 +94,6 @@ extraSecretEnv:
   # # Google API Keys: https://console.cloud.google.com/apis/credentials
   GOOGLE_KEY: 
   GOOGLE_SECRET:
-  # Azure Credentials ID For Azure Auth
-  AZURE_TENANT_ID:
 
 # -- Extra files to mount on `/app/pythonpath`
 extraConfigs: {}
