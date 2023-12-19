@@ -275,7 +275,7 @@ hostAliases: []
 
 # Superset node configuration
 supersetNode:
-  replicaCount: 1
+  replicaCount: 2
   # -- Startup command
   # @default -- See `values.yaml`
   command:
@@ -369,7 +369,7 @@ supersetNode:
 
 # Superset Celery worker configuration
 supersetWorker:
-  replicaCount: 1
+  replicaCount: 2
   # -- Worker startup command
   # @default -- a `celery worker` command
   command:
