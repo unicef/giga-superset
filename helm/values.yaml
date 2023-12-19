@@ -149,7 +149,7 @@ configOverrides:
   charts: |
     ROW_LIMIT = 300000
   # extend_timeout: |
-  #    # Extend timeout to allow long running queries.
+  #    # Extend timeout to allow long-running queries.
   #    SUPERSET_WEBSERVER_TIMEOUT = ...
   enable_oauth: |
     ENABLE_PROXY_FIX = True
@@ -203,6 +203,10 @@ configOverrides:
   # secret: |
   #   # Generate your own secret key for encryption. Use openssl rand -base64 42 to generate a good key
   #   SECRET_KEY = 'YOUR_OWN_RANDOM_GENERATED_SECRET_KEY'
+
+  my_override: |
+    PREVIOUS_SECRET_KEY = 'thisISaSECRET_1234'
+    SECRET_KEY = 'SQUBpcW1YSEPZEvUU2S982RUrtKs/BUM3gSzcSCH+vW8YZ6w/RjSNEkL'
 
 # -- Same as above but the values are files
 configOverridesFiles: {}
@@ -668,7 +672,7 @@ init:
   command:
     - "/bin/sh"
     - "-c"
-    - ". {{ .Values.configMountPath }}/superset_bootstrap.sh; . {{ .Values.configMountPath }}/superset_init.sh"
+    - ". {{ .Values.configMountPath }}/superset_bootstrap.sh; superset re-encrypt-secrets; . {{ .Values.configMountPath }}/superset_init.sh"
   enabled: true
   jobAnnotations:
     "helm.sh/hook": post-install,post-upgrade
