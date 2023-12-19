@@ -106,8 +106,6 @@ extraSecretEnv:
   GOOGLE_SECRET:
   # Azure Credentials ID For Azure Auth
   AZURE_TENANT_ID:
-  # Generate your own secret key for encryption. Use openssl rand -base64 42 to generate a good key
-  SUPERSET_SECRET_KEY:
 
 # -- Extra files to mount on `/app/pythonpath`
 extraConfigs: {}
