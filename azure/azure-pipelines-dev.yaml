@@ -11,7 +11,6 @@ variables:
   adminEmail: $(ADMIN_EMAIL)
   adminUsername: $(ADMIN_USERNAME)
   adminPassword: $(ADMIN_PASSWORD)
-  azureTenantID: $(AZURE_TENANT_ID)
 
 stages:
 - stage: Deploy
@@ -42,7 +41,7 @@ stages:
               releaseName: superset
               valueFile: helm/values.yaml
               namespace: $(kubernetesNamespace)
-              arguments: "--set init.adminUser.username=$(adminUsername),init.adminUser.email=$(adminEmail),init.adminUser.password=$(adminPassword),extraSecretEnv.GOOGLE_KEY=$(CLIENT_ID_GOOGLE),extraSecretEnv.GOOGLE_SECRET=$(CLIENT_SECRET_GOOGLE),extraSecretEnv.AZURE_TENANT_ID=$(azureTenantID)"
+              arguments: "--set init.adminUser.username=$(adminUsername),init.adminUser.email=$(adminEmail),init.adminUser.password=$(adminPassword),extraSecretEnv.GOOGLE_KEY=$(CLIENT_ID_GOOGLE),extraSecretEnv.GOOGLE_SECRET=$(CLIENT_SECRET_GOOGLE),extraSecretEnv.AZURE_TENANT_ID=$(AZURE_TENANT_ID_NEW)"
 
           - task: Kubernetes@1
             displayName: Set up Ingress
