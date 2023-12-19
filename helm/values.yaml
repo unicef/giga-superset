@@ -369,7 +369,7 @@ supersetNode:
 
 # Superset Celery worker configuration
 supersetWorker:
-  replicaCount: 2
+  replicaCount: 1
   # -- Worker startup command
   # @default -- a `celery worker` command
   command:
