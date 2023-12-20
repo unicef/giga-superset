@@ -91,6 +91,11 @@ extraEnvRaw:
       secretKeyRef:
         name: oi-superset-secrets-dev
         key: AZURE_CLIENT_SECRET
+  - name: AZURE_TENANT_ID
+    valueFrom:
+      secretKeyRef:
+        name: oi-azure-secrets-extra
+        key: AZURE_TENANT_ID
   # Load DB password from other secret (e.g. for zalando operator)
   # - name: DB_PASS
   #   valueFrom:
