@@ -11,7 +11,7 @@ variables:
   adminEmail: $(ADMIN_EMAIL)
   adminUsername: $(ADMIN_USERNAME)
   adminPassword: $(ADMIN_PASSWORD)
-  azureTenantID: $(AZURE_TENANT_ID_NEW)
+  azureTenantID: $(AZURE_TENANT_ID)
 
 stages:
 - stage: Deploy
