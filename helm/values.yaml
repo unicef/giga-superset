@@ -91,11 +91,6 @@ extraEnvRaw:
       secretKeyRef:
         name: oi-superset-secrets-dev
         key: AZURE_CLIENT_SECRET
-  - name: AZURE_TENANT_ID_NEW
-    valueFrom:
-      secretKeyRef:
-        name: oi-azure-secrets-extra
-        key: AZURE_TENANT_ID
   # Load DB password from other secret (e.g. for zalando operator)
   # - name: DB_PASS
   #   valueFrom:
@@ -109,6 +104,8 @@ extraSecretEnv:
   # # Google API Keys: https://console.cloud.google.com/apis/credentials
   GOOGLE_KEY: 
   GOOGLE_SECRET:
+  # Azure Credentials ID For Azure Auth
+  AZURE_TENANT_ID: 77410195-14e1-4fb8-904b-ab1892023667
 
 # -- Extra files to mount on `/app/pythonpath`
 extraConfigs: {}
@@ -165,7 +162,7 @@ configOverrides:
             "remote_app": {
                 "client_id": os.environ.get("AZURE_CLIENT_ID"),
                 "client_secret": os.environ.get("AZURE_CLIENT_SECRET"),
-                "api_base_url": "https://login.microsoftonline.com/{os.environ.get('AZURE_TENANT_ID_NEW')}/oauth2",
+                "api_base_url": f"https://login.microsoftonline.com/{os.environ.get('AZURE_TENANT_ID')}/oauth2",
                 "client_kwargs": {
                     "scope": "User.read name preferred_username email profile upn",
                     "resource": os.environ.get("AZURE_CLIENT_ID"),
@@ -173,8 +170,8 @@ configOverrides:
                     "verify_signature": False
                 },
                 "request_token_url": None,
-                "access_token_url": f"https://login.microsoftonline.com/{os.environ.get('AZURE_TENANT_ID_NEW')}/oauth2/token",
-                "authorize_url": f"https://login.microsoftonline.com/{os.environ.get('AZURE_TENANT_ID_NEW')}/oauth2/authorize",
+                "access_token_url": f"https://login.microsoftonline.com/{os.environ.get('AZURE_TENANT_ID')}/oauth2/token",
+                "authorize_url": f"https://login.microsoftonline.com/{os.environ.get('AZURE_TENANT_ID')}/oauth2/authorize",
             },
         },
         {
