@@ -109,8 +109,6 @@ extraSecretEnv:
   # # Google API Keys: https://console.cloud.google.com/apis/credentials
   GOOGLE_KEY: 
   GOOGLE_SECRET:
-  # Azure Credentials ID For Azure Auth
-  AZURE_TENANT_ID:
 
 # -- Extra files to mount on `/app/pythonpath`
 extraConfigs: {}
