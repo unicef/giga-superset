@@ -91,7 +91,7 @@ extraEnvRaw:
       secretKeyRef:
         name: oi-superset-secrets-dev
         key: AZURE_CLIENT_SECRET
-  - name: AZURE_TENANT_ID
+  - name: AZURE_TENANT_ID_NEW
     valueFrom:
       secretKeyRef:
         name: oi-azure-secrets-extra
@@ -165,7 +165,7 @@ configOverrides:
             "remote_app": {
                 "client_id": os.environ.get("AZURE_CLIENT_ID"),
                 "client_secret": os.environ.get("AZURE_CLIENT_SECRET"),
-                "api_base_url": f"https://login.microsoftonline.com/{os.environ.get('AZURE_TENANT_ID')}/oauth2",
+                "api_base_url": f"https://login.microsoftonline.com/{os.environ.get('AZURE_TENANT_ID_NEW')}/oauth2",
                 "client_kwargs": {
                     "scope": "User.read name preferred_username email profile upn",
                     "resource": os.environ.get("AZURE_CLIENT_ID"),
@@ -173,8 +173,8 @@ configOverrides:
                     "verify_signature": False
                 },
                 "request_token_url": None,
-                "access_token_url": f"https://login.microsoftonline.com/{os.environ.get('AZURE_TENANT_ID')}/oauth2/token",
-                "authorize_url": f"https://login.microsoftonline.com/{os.environ.get('AZURE_TENANT_ID')}/oauth2/authorize",
+                "access_token_url": f"https://login.microsoftonline.com/{os.environ.get('AZURE_TENANT_ID_NEW')}/oauth2/token",
+                "authorize_url": f"https://login.microsoftonline.com/{os.environ.get('AZURE_TENANT_ID_NEW')}/oauth2/authorize",
             },
         },
         {
@@ -206,7 +206,6 @@ configOverrides:
   #   SECRET_KEY = 'YOUR_OWN_RANDOM_GENERATED_SECRET_KEY'
 
   my_override: |
-    PREVIOUS_SECRET_KEY = 'thisISaSECRET_1234'
     SECRET_KEY = 'SQUBpcW1YSEPZEvUU2S982RUrtKs/BUM3gSzcSCH+vW8YZ6w/RjSNEkL'
 
 # -- Same as above but the values are files
@@ -673,7 +672,7 @@ init:
   command:
     - "/bin/sh"
     - "-c"
-    - ". {{ .Values.configMountPath }}/superset_bootstrap.sh; superset re-encrypt-secrets; . {{ .Values.configMountPath }}/superset_init.sh"
+    - ". {{ .Values.configMountPath }}/superset_bootstrap.sh; . {{ .Values.configMountPath }}/superset_init.sh"
   enabled: true
   jobAnnotations:
     "helm.sh/hook": post-install,post-upgrade
