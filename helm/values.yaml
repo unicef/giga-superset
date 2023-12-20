@@ -156,25 +156,6 @@ configOverrides:
     AUTH_TYPE = AUTH_OAUTH
     OAUTH_PROVIDERS = [
         {
-            "name": "azure",
-            "icon": "fa-windows",
-            "token_key": "access_token",
-            "remote_app": {
-                "client_id": os.environ.get("AZURE_CLIENT_ID"),
-                "client_secret": os.environ.get("AZURE_CLIENT_SECRET"),
-                "api_base_url": f"https://login.microsoftonline.com/{os.environ.get('AZURE_TENANT_ID')}/oauth2",
-                "client_kwargs": {
-                    "scope": "User.read name preferred_username email profile upn",
-                    "resource": os.environ.get("AZURE_CLIENT_ID"),
-                    # Optionally enforce signature JWT verification
-                    "verify_signature": False
-                },
-                "request_token_url": None,
-                "access_token_url": f"https://login.microsoftonline.com/{os.environ.get('AZURE_TENANT_ID')}/oauth2/token",
-                "authorize_url": f"https://login.microsoftonline.com/{os.environ.get('AZURE_TENANT_ID')}/oauth2/authorize",
-            },
-        },
-        {
             "name": "google",
             "whitelist": [ os.getenv("OAUTH_WHITELIST_REGEX", "") ],
             "icon": "fa-google",
