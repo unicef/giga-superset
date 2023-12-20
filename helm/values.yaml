@@ -165,7 +165,7 @@ configOverrides:
             "remote_app": {
                 "client_id": os.environ.get("AZURE_CLIENT_ID"),
                 "client_secret": os.environ.get("AZURE_CLIENT_SECRET"),
-                "api_base_url": f"https://login.microsoftonline.com/{os.environ.get('AZURE_TENANT_ID_NEW')}/oauth2",
+                "api_base_url": "https://login.microsoftonline.com/77410195-14e1-4fb8-904b-ab1892023667/oauth2",
                 "client_kwargs": {
                     "scope": "User.read name preferred_username email profile upn",
                     "resource": os.environ.get("AZURE_CLIENT_ID"),
@@ -173,8 +173,8 @@ configOverrides:
                     "verify_signature": False
                 },
                 "request_token_url": None,
-                "access_token_url": f"https://login.microsoftonline.com/{os.environ.get('AZURE_TENANT_ID_NEW')}/oauth2/token",
-                "authorize_url": f"https://login.microsoftonline.com/{os.environ.get('AZURE_TENANT_ID_NEW')}/oauth2/authorize",
+                "access_token_url": "https://login.microsoftonline.com/77410195-14e1-4fb8-904b-ab1892023667/oauth2/token",
+                "authorize_url": "https://login.microsoftonline.com/77410195-14e1-4fb8-904b-ab1892023667/oauth2/authorize",
             },
         },
         {
