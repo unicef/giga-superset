@@ -278,7 +278,7 @@ hostAliases: []
 
 # Superset node configuration
 supersetNode:
-  replicaCount: 1
+  replicaCount: 2
   # -- Startup command
   # @default -- See `values.yaml`
   command:
