@@ -1,6 +1,3 @@
-trigger:
-- main
-
 pool:
   vmImage: ubuntu-latest
 
@@ -17,6 +14,16 @@ steps:
     command: 'uninstall'
     arguments: 'superset'
     namespace: $(kubernetesNamespace)
+
+- task: Kubernetes@1
+  displayName: Delete resources in namespace
+  inputs:
+    connectionType: 'Kubernetes Service Connection'
+    kubernetesServiceEndpoint: $(kubernetesServiceConnection)
+    command: delete
+    arguments: "all --all"
+    namespace: $(kubernetesNamespace)
+
 
 - task: Kubernetes@1
   displayName: Delete PVC in namespace
