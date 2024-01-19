@@ -63,7 +63,7 @@ extraEnv:
   # These variables are used as Flags at the gunicorn startup
   # https://github.com/apache/superset/blob/master/docker/run-server.sh#L22
   # Extend timeout to allow long running queries.
-  # GUNICORN_TIMEOUT: 300
+  GUNICORN_TIMEOUT: 120
   # Increase the gunicorn worker amount, can improve performance drastically
   # See: https://docs.gunicorn.org/en/stable/design.html#how-many-workers
   # SERVER_WORKER_AMOUNT: 4
@@ -205,6 +205,14 @@ configOverrides:
   my_override: |
     PREVIOUS_SECRET_KEY = 'thisISaSECRET_1234'
     SECRET_KEY = 'SQUBpcW1YSEPZEvUU2S982RUrtKs/BUM3gSzcSCH+vW8YZ6w/RjSNEkL'
+    SUPERSET_WEBSERVER_TIMEOUT = 120
+    SQLLAB_ASYNC_TIME_LIMIT_SEC = 3600
+    SQLLAB_TIMEOUT = 120
+    DATA_CACHE_CONFIG = {
+      "CACHE_TYPE": "SupersetMetastoreCache",
+      "CACHE_KEY_PREFIX": "superset_results",  # make sure this string is unique to avoid collisions
+      "CACHE_DEFAULT_TIMEOUT": 86400,  # 60 seconds * 60 minutes * 24 hours
+    }
 
 # -- Same as above but the values are files
 configOverridesFiles: {}
