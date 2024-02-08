@@ -227,8 +227,9 @@ configOverrides:
       )
       beat_schedule = {
         "reports.scheduler": {
-        "task": "reports.scheduler",
-        "schedule": crontab(minute="*", hour="*"),
+          "task": "reports.scheduler",
+          "schedule": crontab(minute="*", hour="*"),
+        }
       }
 
     CELERY_CONFIG = CeleryConfig
