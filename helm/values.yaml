@@ -221,6 +221,10 @@ configOverrides:
     from celery.schedules import crontab
 
     class CeleryConfig:
+      imports = (
+        "superset.sql_lab",
+        "superset.tasks.scheduler",
+      )
       beat_schedule = {
         "reports.scheduler": {
         "task": "reports.scheduler",
