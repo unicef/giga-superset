@@ -208,7 +208,9 @@ configOverrides:
     SUPERSET_WEBSERVER_TIMEOUT = 120
     SQLLAB_ASYNC_TIME_LIMIT_SEC = 3600
     SQLLAB_TIMEOUT = 120
-    ALERT_REPORTS = True
+    FEATURE_FLAGS = {
+      "ALERT_REPORTS": True
+    }
     DATA_CACHE_CONFIG = {
       "CACHE_TYPE": "SupersetMetastoreCache",
       "CACHE_KEY_PREFIX": "superset_results",  # make sure this string is unique to avoid collisions
