@@ -40,7 +40,7 @@ stages:
               chartType: Name
               chartName: superset/superset
               releaseName: superset
-              valueFile: helm/values-$(kubernetesNamespace).yaml
+              valueFile: helm/values-staging.yaml
               namespace: $(kubernetesNamespace)
               arguments: "--set init.adminUser.username=$(adminUsername),init.adminUser.email=$(adminEmail),init.adminUser.password=$(adminPassword),extraSecretEnv.GOOGLE_KEY=$(CLIENT_ID_GOOGLE),extraSecretEnv.GOOGLE_SECRET=$(CLIENT_SECRET_GOOGLE),extraSecretEnv.AZURE_TENANT_ID=$(azureTenantID)"
 
@@ -48,5 +48,5 @@ stages:
             displayName: Set up Ingress
             inputs:
               command: apply
-              arguments: '-f azure/ingress-$(kubernetesNamespace).yaml'
+              arguments: '-f azure/ingress-staging.yaml'
               namespace: $(kubernetesNamespace)
