@@ -224,6 +224,7 @@ configOverrides:
       broker_url = f"redis://{env('REDIS_HOST')}:{env('REDIS_PORT')}/0"
       imports = (
         "superset.tasks.scheduler",
+        "superset.tasks.cache",
       )
       beat_schedule = {
         "reports.scheduler": {
