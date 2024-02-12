@@ -229,16 +229,16 @@ configOverrides:
         "reports.scheduler": {
           "task": "reports.scheduler",
           "schedule": crontab(minute="*", hour="*"),
-        }
+        },
         "cache-warmup-hourly": {
-              "task": "cache-warmup",
-              "schedule": crontab(minute="5", hour="*"),
-              "kwargs": {
-                  "strategy_name": "top_n_dashboards",
-                  "top_n": 5,
-                  "since": "7 days ago",
-              },
+          "task": "cache-warmup",
+          "schedule": crontab(minute="5", hour="*"),
+          "kwargs": {
+              "strategy_name": "top_n_dashboards",
+              "top_n": 5,
+              "since": "7 days ago",
           }
+        }
       }
 
     CELERY_CONFIG = CeleryConfig
