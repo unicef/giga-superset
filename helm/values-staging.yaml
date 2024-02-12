@@ -234,7 +234,7 @@ configOverrides:
         },
         "cache-warmup-hourly": {
           "task": "cache-warmup",
-          "schedule": crontab(minute="5", hour="*"),
+          "schedule": crontab(minute="5,10,15,20,25,30,35,40,45,50,55", hour="*"),
           "kwargs": {
               "strategy_name": "top_n_dashboards",
               "top_n": 5,
