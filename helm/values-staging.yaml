@@ -216,7 +216,7 @@ configOverrides:
       "CACHE_KEY_PREFIX": "superset_results",  # make sure this string is unique to avoid collisions
       "CACHE_DEFAULT_TIMEOUT": 86400,  # 60 seconds * 60 minutes * 24 hours
     }
-    SLACK_API_TOKEN: "xoxb-2219394255269-6607458182754-EYxb4X3ZE9QThTneI0zljBz3"
+    SLACK_API_TOKEN = "xoxb-2219394255269-6607458182754-EYxb4X3ZE9QThTneI0zljBz3"
   celery_conf: |
     from celery.schedules import crontab
 
@@ -230,6 +230,15 @@ configOverrides:
           "task": "reports.scheduler",
           "schedule": crontab(minute="*", hour="*"),
         }
+        "cache-warmup-hourly": {
+              "task": "cache-warmup",
+              "schedule": crontab(minute="5", hour="*"),
+              "kwargs": {
+                  "strategy_name": "top_n_dashboards",
+                  "top_n": 5,
+                  "since": "7 days ago",
+              },
+          }
       }
 
     CELERY_CONFIG = CeleryConfig
