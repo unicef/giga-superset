@@ -100,7 +100,6 @@ extraEnvRaw:
 
 # -- Extra environment variables to pass as secrets
 extraSecretEnv:
-  SLACK_API_TOKEN: xoxb-2219394255269-6607458182754-EYxb4X3ZE9QThTneI0zljBz3
   # MAPBOX_API_KEY: ...
   # # Google API Keys: https://console.cloud.google.com/apis/credentials
   GOOGLE_KEY: 
@@ -217,6 +216,7 @@ configOverrides:
       "CACHE_KEY_PREFIX": "superset_results",  # make sure this string is unique to avoid collisions
       "CACHE_DEFAULT_TIMEOUT": 86400,  # 60 seconds * 60 minutes * 24 hours
     }
+    SLACK_API_TOKEN: xoxb-2219394255269-6607458182754-EYxb4X3ZE9QThTneI0zljBz3
   celery_conf: |
     from celery.schedules import crontab
 
