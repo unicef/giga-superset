@@ -216,6 +216,7 @@ configOverrides:
       "CACHE_KEY_PREFIX": "superset_results",  # make sure this string is unique to avoid collisions
       "CACHE_DEFAULT_TIMEOUT": 86400,  # 60 seconds * 60 minutes * 24 hours
     }
+    TALISMAN_ENABLED = False
     SLACK_API_TOKEN = "xoxb-2219394255269-6607458182754-EYxb4X3ZE9QThTneI0zljBz3"
     WEBDRIVER_BASEURL = "http://superset:8088/"
     WEBDRIVER_BASEURL_USER_FRIENDLY = WEBDRIVER_BASEURL
