@@ -224,9 +224,15 @@ configOverrides:
       broker_url = f"redis://{env('REDIS_HOST')}:{env('REDIS_PORT')}/0"
       result_backend = f"redis://{env('REDIS_HOST')}:{env('REDIS_PORT')}/0"
       imports = (
+        "superset.sql_lab",
         "superset.tasks.scheduler",
         "superset.tasks.cache",
       )
+      task_annotations = {
+          "sql_lab.get_sql_results": {
+              "rate_limit": "100/s",
+          },
+      }
       beat_schedule = {
         "reports.scheduler": {
           "task": "reports.scheduler",
