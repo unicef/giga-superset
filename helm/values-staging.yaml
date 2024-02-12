@@ -210,7 +210,7 @@ configOverrides:
     SQLLAB_ASYNC_TIME_LIMIT_SEC = 3600
     SQLLAB_TIMEOUT = 120
     FEATURE_FLAGS = {
-      "ALERT_REPORTS" = True
+      "ALERT_REPORTS": True
     }
     DATA_CACHE_CONFIG = {
       "CACHE_TYPE": "SupersetMetastoreCache",
