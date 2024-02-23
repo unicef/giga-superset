@@ -209,7 +209,7 @@ configOverrides:
     SQLLAB_ASYNC_TIME_LIMIT_SEC = 3600
     SQLLAB_TIMEOUT = 120
     FEATURE_FLAGS = {
-      "ALERT_REPORTS": True
+      "ALERT_REPORTS": True,
       "TAGGING_SYSTEM": True
     }
     DATA_CACHE_CONFIG = {
@@ -237,6 +237,7 @@ configOverrides:
     class CeleryConfig:
       broker_url = f"redis://{env('REDIS_HOST')}:{env('REDIS_PORT')}/0"
       result_backend = f"redis://{env('REDIS_HOST')}:{env('REDIS_PORT')}/0"
+      worker_log_level = "DEBUG"
       imports = (
         "superset.sql_lab",
         "superset.tasks.scheduler",
