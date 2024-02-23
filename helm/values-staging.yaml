@@ -210,11 +210,13 @@ configOverrides:
     SQLLAB_TIMEOUT = 120
     FEATURE_FLAGS = {
       "ALERT_REPORTS": True
+      "TAGGING_SYSTEM": True
     }
     DATA_CACHE_CONFIG = {
-      "CACHE_TYPE": "SupersetMetastoreCache",
+      "CACHE_TYPE": "RedisCache",
       "CACHE_KEY_PREFIX": "superset_results",  # make sure this string is unique to avoid collisions
       "CACHE_DEFAULT_TIMEOUT": 180,  # 60 seconds * 60 minutes * 24 hours
+      "CACHE_REDIS_URL": f"redis://{env('REDIS_HOST')}:{env('REDIS_PORT')}/0"
     }
 
     TALISMAN_ENABLED = False
