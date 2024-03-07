@@ -26,7 +26,7 @@ jobs:
                       app.kubernetes.io/component: superset
                   stringData:
                       POSTGRESQL_PASSWORD: "$(postgresqlPassword)"
-                      REDIS_PASSWORD: "$(redisPassword)"
+                      redis-password: "$(redisPassword)"
                       GOOGLE_OAUTH_CLIENT_ID: "$(googleClientId)"
                       GOOGLE_OAUTH_CLIENT_SECRET: "$(googleClientSecret)"
                       SECRET_KEY: "$(secretKey)"
