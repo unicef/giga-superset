@@ -2,7 +2,7 @@ import os
 from datetime import timedelta
 
 from celery.schedules import crontab
-from flask_appbuilder.security.manager import AUTH_OAUTH
+from flask_appbuilder.security.manager import AUTH_DB
 from superset.tasks.types import ExecutorType
 
 ENABLE_PROXY_FIX = True
@@ -20,12 +20,12 @@ SECRET_KEY = os.environ.get("SECRET_KEY")
 
 DATABASE_PASSWORD = os.environ.get("POSTGRESQL_PASSWORD")
 
-SQLALCHEMY_DATABASE_URI = f"postgresql://giga-superset:{DATABASE_PASSWORD}@superset-postgresql:5432/giga-superset"
+SQLALCHEMY_DATABASE_URI = f"postgresql+psycopg2://giga-superset:{DATABASE_PASSWORD}@superset-postgresql:5432/giga-superset"
 
 
 # Authlib
 
-AUTH_TYPE = AUTH_OAUTH
+AUTH_TYPE = AUTH_DB
 
 OAUTH_PROVIDERS = [
     {
@@ -71,7 +71,7 @@ AUTH_USER_REGISTRATION_ROLE = "Gamma"
 
 # Flask-WTF
 
-WTF_CSRF_ENABLED = True
+WTF_CSRF_ENABLED = False
 
 WTF_CSRF_EXEMPT_LIST = []
 
@@ -152,9 +152,12 @@ TALISMAN_CONFIG = {
     "strict_transport_security_include_subdomains": True,
     "content_security_policy": {
         "default-src": "'self'",
-        "img-src": "*",
+        "img-src": ["*", "data:", "blob:"],
         "media-src": "*",
+        "style-src": ["'self'", "'unsafe-inline'"],
+        "script-src": ["'self'", "'strict-dynamic'"],
     },
+    "content_security_policy_nonce_in": ["script-src"],
     "session_cookie_secure": True,
     "session_cookie_http_only": True,
 }
