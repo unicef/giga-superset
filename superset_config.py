@@ -130,6 +130,27 @@ DATA_CACHE_CONFIG = {
 }
 
 
+# Talisman
+
+TALISMAN_ENABLED = True
+
+TALISMAN_CONFIG = {
+    "force_https": True,
+    "force_https_permanent": True,
+    "frame_options": "SAMEORIGIN",
+    "strict_transport_security_preload": True,
+    "strict_transport_security_max_age": int(timedelta(days=365).total_seconds()),
+    "strict_transport_security_include_subdomains": True,
+    "content_security_policy": {
+        "default-src": "'self'",
+        "img-src": "*",
+        "media-src": "*",
+    },
+    "session_cookie_secure": True,
+    "session_cookie_http_only": True,
+}
+
+
 # Misc
 
 SUPERSET_WEBSERVER_TIMEOUT = int(timedelta(minutes=2).total_seconds())
@@ -137,8 +158,6 @@ SUPERSET_WEBSERVER_TIMEOUT = int(timedelta(minutes=2).total_seconds())
 SQLLAB_ASYNC_TIME_LIMIT_SEC = int(timedelta(hours=1).total_seconds())
 
 SQLLAB_TIMEOUT = int(timedelta(minutes=2).total_seconds())
-
-TALISMAN_ENABLED = False
 
 SESSION_COOKIE_SAMESITE = "Strict"
 
