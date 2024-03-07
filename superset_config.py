@@ -18,6 +18,10 @@ PREVIOUS_SECRET_KEY = "thisISaSECRET_1234"  # gitleaks:allow
 
 SECRET_KEY = os.environ.get("SECRET_KEY")
 
+DATABASE_PASSWORD = os.environ.get("POSTGRESQL_PASSWORD")
+
+SQLALCHEMY_DATABASE_URI = f"postgresql://giga-superset:{DATABASE_PASSWORD}@superset-postgresql:5432/giga-superset"
+
 
 # Authlib
 
@@ -38,7 +42,22 @@ OAUTH_PROVIDERS = [
             "authorize_url": "https://accounts.google.com/o/oauth2/auth",
             "authorize_params": {"hd": os.environ.get("OAUTH_HOME_DOMAIN", "")},
         },
-    }
+    },
+    {
+        "name": "github",
+        "icon": "fa-github",
+        "token_key": "access_token",
+        "remote_app": {
+            "client_id": os.environ.get("GITHUB_OAUTH_CLIENT_ID"),
+            "client_secret": os.environ.get("GITHUB_OAUTH_CLIENT_SECRET"),
+            "api_base_url": "https://github.com/login/oauth",
+            # "client_kwargs": {"scope": "email profile"},
+            # "request_token_url": None,
+            "access_token_url": "https://github.com/login/oauth/access_token",
+            "authorize_url": "https://github.com/login/oauth/authorize",
+            # "authorize_params": {"hd": os.environ.get("OAUTH_HOME_DOMAIN", "")},
+        },
+    },
 ]
 
 AUTH_ROLE_ADMIN = "Admin"
@@ -52,7 +71,7 @@ AUTH_USER_REGISTRATION_ROLE = "Gamma"
 
 # Flask-WTF
 
-WTF_CSRF_ENABLED = True
+WTF_CSRF_ENABLED = False
 
 WTF_CSRF_EXEMPT_LIST = []
 
@@ -61,7 +80,7 @@ WTF_CSRF_TIME_LIMIT = int(timedelta(days=365).total_seconds())
 
 # Redis
 
-REDIS_HOST = os.environ.get("REDIS_HOST")
+REDIS_HOST = os.environ.get("REDIS_HOST", "superset-redis-headless")
 
 REDIS_PORT = os.environ.get("REDIS_PORT", 6379)
 
