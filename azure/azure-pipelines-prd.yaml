@@ -1,7 +1,7 @@
 trigger:
   branches:
     include:
-      - staging
+      - production
 
 pr: none
 
@@ -12,39 +12,4 @@ variables:
   - template: templates/variables.yaml
 
 stages:
-  - stage: Deploy
-    displayName: Superset Deploy Stage
-    jobs:
-      - deployment: Deploy
-        displayName: Superset Deployment
-        environment: $(kubernetesEnvironment)
-        strategy:
-          runOnce:
-            deploy:
-              steps:
-                - checkout: self
-                - task: HelmDeploy@0
-                  displayName: 'Add Superset Helm Repo'
-                  enabled: true
-                  inputs:
-                    command: 'repo'
-                    arguments: 'add superset https://apache.github.io/superset'
-                    namespace: $(kubernetesNamespace)
-
-                - task: HelmDeploy@0
-                  displayName: Helm deploy Superset
-                  inputs:
-                    command: upgrade
-                    chartType: Name
-                    chartName: superset/superset
-                    releaseName: superset
-                    valueFile: helm/values-staging.yaml
-                    namespace: $(kubernetesNamespace)
-                    arguments: "--set init.adminUser.username=$(adminUsername),init.adminUser.email=$(adminEmail),init.adminUser.password=$(adminPassword),extraSecretEnv.GOOGLE_KEY=$(CLIENT_ID_GOOGLE),extraSecretEnv.GOOGLE_SECRET=$(CLIENT_SECRET_GOOGLE),extraSecretEnv.AZURE_TENANT_ID=$(azureTenantID)"
-
-                - task: Kubernetes@1
-                  displayName: Set up Ingress
-                  inputs:
-                    command: apply
-                    arguments: '-f azure/ingress-staging.yaml'
-                    namespace: $(kubernetesNamespace)
+  - template: templates/workflow.yaml

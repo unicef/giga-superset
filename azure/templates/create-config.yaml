@@ -1,0 +1,32 @@
+jobs:
+  - deployment: Deploy
+    displayName: Create/update K8s configuration resources
+    environment: $(kubernetesEnvironment)
+    strategy:
+      runOnce:
+        deploy:
+          steps:
+            - checkout: self
+
+            - task: Kubernetes@1
+              displayName: Create Superset secrets
+              inputs:
+                namespace: $(kubernetesNamespace)
+                configurationType: inline
+                command: apply
+                useConfigurationFile: true
+                inline: |
+                  apiVersion: v1
+                  kind: Secret
+                  metadata:
+                    name: giga-superset-secrets
+                    labels:
+                      app.kubernetes.io/name: giga-superset
+                      app.kubernetes.io/part-of: giga-dataops-platform
+                      app.kubernetes.io/component: superset
+                  stringData:
+                      POSTGRESQL_PASSWORD: "$(postgresqlPassword)"
+                      REDIS_PASSWORD: "$(redisPassword)"
+                      GOOGLE_OAUTH_CLIENT_ID: "$(googleClientId)"
+                      GOOGLE_OAUTH_CLIENT_SECRET: "$(googleClientSecret)"
+                      SECRET_KEY: "$(secretKey)"

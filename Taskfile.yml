@@ -16,6 +16,12 @@ tasks:
       - pre-commit install
       - helm repo add superset https://apache.github.io/superset
 
+  build-and-push:
+    desc: Build and push Docker image
+    cmds:
+      - docker build --tag {{.SUPERSET_IMAGE_REPOSITORY}}:{{.COMMIT_SHA}} .
+      - docker push {{.SUPERSET_IMAGE_REPOSITORY}}:{{.COMMIT_SHA}}
+
   helm-up:
     desc: Install/upgrade Superset Helm chart on a local cluster
     dir: helm
@@ -25,11 +31,14 @@ tasks:
         helm upgrade --install superset superset/superset
         --namespace giga-superset
         --version 0.12.6
+        --values values-prd.yaml
         --set init.adminUser.username={{.ADMIN_USERNAME}}
         --set init.adminUser.email={{.ADMIN_EMAIL}}
         --set init.adminUser.password={{.ADMIN_PASSWORD}}
         --set postgresql.primary.readinessProbe.enabled=false
         --set postgresql.primary.livenessProbe.enabled=false
+        --set image.repository={{.SUPERSET_IMAGE_REPOSITORY}}
+        --set-string image.tag={{.COMMIT_SHA}}
 
   helm-upi:
     desc: Install/upgrade Superset Helm chart on a cluster with pre-configured HTTPS ingress
@@ -40,6 +49,7 @@ tasks:
         helm upgrade --install superset superset/superset
         --namespace giga-superset
         --version 0.12.6
+        --values values-prd.yaml
         --set ingress.enabled=true
         --set ingress.annotations=null
         --set ingress.hosts[0]={{.SUPERSET_INGRESS_HOST}}
@@ -48,6 +58,8 @@ tasks:
         --set init.adminUser.password={{.ADMIN_PASSWORD}}
         --set postgresql.primary.readinessProbe.enabled=false
         --set postgresql.primary.livenessProbe.enabled=false
+        --set image.repository={{.SUPERSET_IMAGE_REPOSITORY}}
+        --set-string image.tag={{.COMMIT_SHA}}
 
   k8s-prereqs:
     internal: true
