@@ -71,11 +71,20 @@ AUTH_USER_REGISTRATION_ROLE = "Gamma"
 
 # Flask-WTF
 
-WTF_CSRF_ENABLED = False
+WTF_CSRF_ENABLED = True
 
 WTF_CSRF_EXEMPT_LIST = []
 
 WTF_CSRF_TIME_LIMIT = int(timedelta(days=365).total_seconds())
+
+
+# Session cookie
+
+SESSION_COOKIE_SAMESITE = "Strict"
+
+SESSION_COOKIE_SECURE = True
+
+SESSION_COOKIE_HTTPONLY = True
 
 
 # Redis
@@ -158,8 +167,6 @@ SUPERSET_WEBSERVER_TIMEOUT = int(timedelta(minutes=2).total_seconds())
 SQLLAB_ASYNC_TIME_LIMIT_SEC = int(timedelta(hours=1).total_seconds())
 
 SQLLAB_TIMEOUT = int(timedelta(minutes=2).total_seconds())
-
-SESSION_COOKIE_SAMESITE = "Strict"
 
 SLACK_API_TOKEN = os.environ.get("SLACK_API_TOKEN")
 
