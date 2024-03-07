@@ -1,7 +1,7 @@
 trigger:
   branches:
     include:
-      - dev
+      - staging
 
 pr: none
 
@@ -9,13 +9,7 @@ pool:
   vmImage: ubuntu-latest
 
 variables:
-  kubernetesServiceConnection: $(KUBERNETES_SERVICE_CONNECTION)
-  kubernetesNamespace: $(KUBERNETES_NAMESPACE)
-  kubernetesEnvironment: $(KUBERNETES_ENVIRONMENT)
-  adminEmail: $(ADMIN_EMAIL)
-  adminUsername: $(ADMIN_USERNAME)
-  adminPassword: $(ADMIN_PASSWORD)
-  azureTenantID: $(AZURE_TENANT_ID)
+  - template: templates/variables.yaml
 
 stages:
   - stage: Deploy
@@ -44,7 +38,7 @@ stages:
                     chartType: Name
                     chartName: superset/superset
                     releaseName: superset
-                    valueFile: helm/values.yaml
+                    valueFile: helm/values-staging.yaml
                     namespace: $(kubernetesNamespace)
                     arguments: "--set init.adminUser.username=$(adminUsername),init.adminUser.email=$(adminEmail),init.adminUser.password=$(adminPassword),extraSecretEnv.GOOGLE_KEY=$(CLIENT_ID_GOOGLE),extraSecretEnv.GOOGLE_SECRET=$(CLIENT_SECRET_GOOGLE),extraSecretEnv.AZURE_TENANT_ID=$(azureTenantID)"
 
@@ -52,5 +46,5 @@ stages:
                   displayName: Set up Ingress
                   inputs:
                     command: apply
-                    arguments: '-f azure/ingress.yaml'
+                    arguments: '-f azure/ingress-staging.yaml'
                     namespace: $(kubernetesNamespace)

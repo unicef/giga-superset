@@ -1,0 +1,8 @@
+variables:
+  kubernetesServiceConnection: $(KUBERNETES_SERVICE_CONNECTION)
+  kubernetesNamespace: $(KUBERNETES_NAMESPACE)
+  kubernetesEnvironment: $(KUBERNETES_ENVIRONMENT)
+  adminEmail: $(ADMIN_EMAIL)
+  adminUsername: $(ADMIN_USERNAME)
+  adminPassword: $(ADMIN_PASSWORD)
+  azureTenantID: $(AZURE_TENANT_ID)
