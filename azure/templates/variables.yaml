@@ -6,7 +6,6 @@ variables:
   adminPassword: $(ADMIN_PASSWORD)
   deployEnv: $(DEPLOY_ENV)
   postgresqlPassword: $(POSTGRESQL_PASSWORD)
-  redisPassword: $(REDIS_PASSWORD)
   secretKey: $(SECRET_KEY)
   containerRegistryName: $(ACR_NAME)
   containerRegistryServiceConnection: $(ACR_SERVICE_CONNECTION)

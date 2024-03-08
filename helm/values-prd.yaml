@@ -840,13 +840,13 @@ redis:
   ##
   auth:
     ## Enable password authentication
-    enabled: true
+    enabled: false
     ## The name of an existing secret that contains the redis password.
-    existingSecret: giga-superset-secrets
+    existingSecret: ~
     ## Name of the key containing the secret.
-    existingSecretKey: REDIS_PASSWORD
+    existingSecretKey: ~
     ## Redis password
-    password: ""
+    password: ~
   ##
   ## Master configuration
   ##
