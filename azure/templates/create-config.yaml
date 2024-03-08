@@ -46,3 +46,7 @@ jobs:
                   spec:
                     type: ExternalName
                     externalName: "trino.io-trino-$(deployEnv).svc.cluster.local"
+                    ports:
+                      - port: 8080
+                        protocol: TCP
+                        targetPort: 8080
