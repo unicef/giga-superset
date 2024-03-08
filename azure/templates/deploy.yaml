@@ -1,0 +1,35 @@
+jobs:
+  - deployment: Deploy
+    displayName: Superset Deployment
+    environment: $(kubernetesEnvironment)
+    strategy:
+      runOnce:
+        deploy:
+          steps:
+            - checkout: self
+            - task: HelmDeploy@0
+              displayName: Add Superset Helm repo
+              enabled: true
+              inputs:
+                command: repo
+                arguments: add superset https://apache.github.io/superset
+                namespace: $(kubernetesNamespace)
+
+            - task: HelmDeploy@0
+              displayName: Helm deploy Superset
+              inputs:
+                command: upgrade
+                chartType: Name
+                chartName: superset/superset
+                releaseName: superset
+                valueFile: "helm/values-$(deployEnv).yaml"
+                namespace: $(kubernetesNamespace)
+                arguments: >
+                  --version 0.12.6
+                  --set init.adminUser.username=$(adminUsername)
+                  --set init.adminUser.email=$(adminEmail)
+                  --set init.adminUser.password=$(adminPassword)
+                  --set image.repository="$(containerRegistryName).azurecr.io/giga-superset"
+                  --set-string image.tag="$(Build.SourceVersion)"
+                  --set ingress.enabled=true
+                  --set ingress.hosts[0]="io-superset-$(deployEnv).unitst.org"

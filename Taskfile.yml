@@ -1,0 +1,84 @@
+version: '3'
+
+dotenv:
+  - .env
+
+vars:
+  PROJECT_NAME: giga-dataops_superset
+  COMMIT_SHA:
+    sh: git rev-parse --short HEAD
+
+tasks:
+  setup:
+    desc: Run initial setup
+    cmds:
+      - pip install -U pre-commit
+      - pre-commit install
+      - helm repo add superset https://apache.github.io/superset
+
+  build-and-push:
+    desc: Build and push Docker image
+    cmds:
+      - docker build --tag {{.SUPERSET_IMAGE_REPOSITORY}}:{{.COMMIT_SHA}} .
+      - docker push {{.SUPERSET_IMAGE_REPOSITORY}}:{{.COMMIT_SHA}}
+
+  helm-up:
+    desc: Install/upgrade Superset Helm chart on a local cluster
+    dir: helm
+    cmds:
+      - task: k8s-prereqs
+      - >
+        helm upgrade --install superset superset/superset
+        --namespace giga-superset
+        --version 0.12.6
+        --values values-prd.yaml
+        --set init.adminUser.username={{.ADMIN_USERNAME}}
+        --set init.adminUser.email={{.ADMIN_EMAIL}}
+        --set init.adminUser.password={{.ADMIN_PASSWORD}}
+        --set postgresql.primary.readinessProbe.enabled=false
+        --set postgresql.primary.livenessProbe.enabled=false
+        --set image.repository={{.SUPERSET_IMAGE_REPOSITORY}}
+        --set-string image.tag={{.COMMIT_SHA}}
+
+  helm-upi:
+    desc: Install/upgrade Superset Helm chart on a cluster with pre-configured HTTPS ingress
+    dir: helm
+    cmds:
+      - task: k8s-prereqs
+      - >
+        helm upgrade --install superset superset/superset
+        --namespace giga-superset
+        --version 0.12.6
+        --values values-prd.yaml
+        --set ingress.enabled=true
+        --set ingress.annotations=null
+        --set ingress.hosts[0]={{.SUPERSET_INGRESS_HOST}}
+        --set init.adminUser.username={{.ADMIN_USERNAME}}
+        --set init.adminUser.email={{.ADMIN_EMAIL}}
+        --set init.adminUser.password={{.ADMIN_PASSWORD}}
+        --set postgresql.primary.readinessProbe.enabled=false
+        --set postgresql.primary.livenessProbe.enabled=false
+        --set image.repository={{.SUPERSET_IMAGE_REPOSITORY}}
+        --set-string image.tag={{.COMMIT_SHA}}
+
+  k8s-prereqs:
+    internal: true
+    desc: Install K8s configs/secrets
+    dir: k8s
+    cmds:
+      - kubectl apply -f namespace.yaml
+      - kubectl apply -f secrets.yaml --namespace giga-superset
+
+  helm-down:
+    desc: Uninstall Helm charts
+    ignore_error: true
+    cmds:
+      - helm uninstall superset --namespace giga-superset
+
+  helm-clean:
+    desc: Cleanup all K8s resources
+    ignore_error: true
+    dir: k8s
+    cmds:
+      - kubectl delete all --all --namespace giga-superset
+      - kubectl delete pvc --all --namespace giga-superset

@@ -1,0 +1,11 @@
+variables:
+  kubernetesNamespace: $(KUBERNETES_NAMESPACE)
+  kubernetesEnvironment: $(KUBERNETES_ENVIRONMENT)
+  adminEmail: $(ADMIN_EMAIL)
+  adminUsername: $(ADMIN_USERNAME)
+  adminPassword: $(ADMIN_PASSWORD)
+  deployEnv: $(DEPLOY_ENV)
+  postgresqlPassword: $(POSTGRESQL_PASSWORD)
+  secretKey: $(SECRET_KEY)
+  containerRegistryName: $(ACR_NAME)
+  containerRegistryServiceConnection: $(ACR_SERVICE_CONNECTION)
