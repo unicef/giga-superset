@@ -383,7 +383,7 @@ supersetWorker:
   command:
     - "/bin/sh"
     - "-c"
-    - ". {{ .Values.configMountPath }}/superset_bootstrap.sh; celery --app=superset.tasks.celery_app:app worker"
+    - ". {{ .Values.configMountPath }}/superset_bootstrap.sh; celery --app=superset.tasks.celery_app:app worker --pool=prefork -O fair -c 4"
   # -- If true, forces deployment to reload on each upgrade
   forceReload: false
   # -- Init container

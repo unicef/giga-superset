@@ -11,6 +11,7 @@ trino = { extras = ["sqlalchemy"], version = "^0.328.0" }
 flask-appbuilder = "^4.4.1"
 celery = "^5.3.6"
 apache-superset = "^3.1.1"
+flask-caching = "^2.1.0"
 
 [tool.poetry.group.dev.dependencies]
 ruff = "^0.3.1"

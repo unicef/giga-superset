@@ -3,6 +3,7 @@ from datetime import timedelta
 
 from celery.schedules import crontab
 from flask_appbuilder.security.manager import AUTH_DB
+from flask_caching.backends.rediscache import RedisCache
 from superset.tasks.types import ExecutorType
 
 ENABLE_PROXY_FIX = True
@@ -103,6 +104,8 @@ class CeleryConfig:
     broker_url = REDIS_URL
     result_backend = REDIS_URL
     worker_log_level = "DEBUG"
+    worker_prefetch_multiplier = 10
+    task_acks_late = True
     imports = (
         "superset.sql_lab",
         "superset.tasks.scheduler",
@@ -138,6 +141,11 @@ DATA_CACHE_CONFIG = {
     "CACHE_REDIS_URL": REDIS_URL,
 }
 
+RESULTS_BACKEND = RedisCache(
+    host=REDIS_HOST,
+    port=REDIS_PORT,
+    key_prefix="superset_results",
+)
 
 # Talisman
 
