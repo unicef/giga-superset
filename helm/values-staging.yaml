@@ -153,7 +153,7 @@ configOverrides:
     ENABLE_PROXY_FIX = True
 
     from flask_appbuilder.security.manager import (AUTH_DB, AUTH_OAUTH)
-    AUTH_TYPE = AUTH_DB
+    AUTH_TYPE = AUTH_OAUTH
     OAUTH_PROVIDERS = [
         {
             "name": "azure",
