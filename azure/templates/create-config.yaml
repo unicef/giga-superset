@@ -1,0 +1,49 @@
+jobs:
+  - deployment: Deploy
+    displayName: Create/update K8s configuration resources
+    environment: $(kubernetesEnvironment)
+    strategy:
+      runOnce:
+        deploy:
+          steps:
+            - checkout: self
+
+            - task: Kubernetes@1
+              displayName: Create Superset secrets
+              inputs:
+                namespace: $(kubernetesNamespace)
+                configurationType: inline
+                command: apply
+                useConfigurationFile: true
+                inline: |
+                  apiVersion: v1
+                  kind: Secret
+                  metadata:
+                    name: giga-superset-secrets
+                    labels:
+                      app.kubernetes.io/name: giga-superset
+                      app.kubernetes.io/part-of: giga-dataops-platform
+                      app.kubernetes.io/component: superset
+                  stringData:
+                      POSTGRESQL_PASSWORD: "$(postgresqlPassword)"
+                      SECRET_KEY: "$(secretKey)"
+
+            - task: Kubernetes@1
+              displayName: Create Trino ExternalName service
+              inputs:
+                namespace: $(kubernetesNamespace)
+                configurationType: inline
+                command: apply
+                useConfigurationFile: true
+                inline: |
+                  apiVersion: v1
+                  kind: Service
+                  metadata:
+                    name: trino-external
+                  spec:
+                    type: ExternalName
+                    externalName: "trino.io-trino-$(deployEnv).svc.cluster.local"
+                    ports:
+                      - port: 8080
+                        protocol: TCP
+                        targetPort: 8080

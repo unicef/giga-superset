@@ -1,0 +1,19 @@
+stages:
+  - stage: BuildAndPush
+    displayName: Build and push Superset image
+    jobs:
+      - template: build-and-push.yaml
+
+  - stage: CreateConfig
+    displayName: Create/update K8s configuration resources
+    dependsOn: [ ]
+    jobs:
+      - template: create-config.yaml
+
+  - stage: Deploy
+    displayName: Deploy Superset
+    dependsOn:
+      - BuildAndPush
+      - CreateConfig
+    jobs:
+      - template: deploy.yaml

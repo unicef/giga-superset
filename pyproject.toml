@@ -1,0 +1,39 @@
+[tool.poetry]
+name = "giga-superset"
+version = "0.1.0"
+description = ""
+authors = ["Thinking Machines <hello@thinkingmachin.es>"]
+
+[tool.poetry.dependencies]
+python = "^3.11"
+authlib = "^1.3.0"
+trino = { extras = ["sqlalchemy"], version = "^0.328.0" }
+flask-appbuilder = "^4.4.1"
+celery = "^5.3.6"
+apache-superset = "^3.1.1"
+flask-caching = "^2.1.0"
+
+[tool.poetry.group.dev.dependencies]
+ruff = "^0.3.1"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
+
+[tool.ruff]
+target-version = "py311"
+ignore-init-module-imports = true
+
+[tool.ruff.lint]
+select = ["E", "W", "F", "I", "C", "B", "UP"]
+ignore = ["E203", "E266", "E501", "E402", "C408"]
+
+[tool.ruff.mccabe]
+max-complexity = 10
+
+[tool.ruff.lint.flake8-builtins]
+builtins-ignorelist = ["id"]
+
+[tool.ruff.lint.isort]
+combine-as-imports = true
+force-wrap-aliases = true
