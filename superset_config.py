@@ -28,35 +28,40 @@ SQLALCHEMY_DATABASE_URI = f"postgresql+psycopg2://giga-superset:{DATABASE_PASSWO
 
 AUTH_TYPE = AUTH_DB
 
+AZURE_TENANT_ID = os.environ.get("AZURE_TENANT_ID")
+
 OAUTH_PROVIDERS = [
+    {
+        "name": "azure",
+        "icon": "fa-windows",
+        "token_key": "access_token",
+        "remote_app": {
+            "client_id": os.environ.get("AZURE_CLIENT_ID"),
+            "client_secret": os.environ.get("AZURE_CLIENT_SECRET"),
+            "api_base_url": f"https://login.microsoftonline.com/{AZURE_TENANT_ID}/oauth2",
+            "client_kwargs": {
+                "scope": "User.read name preferred_username email profile upn",
+                "resource": os.environ.get("AZURE_CLIENT_ID"),
+                "verify_signature": False,
+            },
+            "request_token_url": None,
+            "access_token_url": f"https://login.microsoftonline.com/{AZURE_TENANT_ID}/oauth2/token",
+            "authorize_url": f"https://login.microsoftonline.com/{AZURE_TENANT_ID}/oauth2/authorize",
+        },
+    },
     {
         "name": "google",
         "icon": "fa-google",
         "token_key": "access_token",
         "remote_app": {
-            "client_id": os.environ.get("GOOGLE_OAUTH_CLIENT_ID"),
-            "client_secret": os.environ.get("GOOGLE_OAUTH_CLIENT_SECRET"),
+            "client_id": os.environ.get("GOOGLE_KEY"),
+            "client_secret": os.environ.get("GOOGLE_SECRET"),
             "api_base_url": "https://www.googleapis.com/oauth2/v2/",
             "client_kwargs": {"scope": "email profile"},
             "request_token_url": None,
             "access_token_url": "https://accounts.google.com/o/oauth2/token",
             "authorize_url": "https://accounts.google.com/o/oauth2/auth",
             "authorize_params": {"hd": os.environ.get("OAUTH_HOME_DOMAIN", "")},
-        },
-    },
-    {
-        "name": "github",
-        "icon": "fa-github",
-        "token_key": "access_token",
-        "remote_app": {
-            "client_id": os.environ.get("GITHUB_OAUTH_CLIENT_ID"),
-            "client_secret": os.environ.get("GITHUB_OAUTH_CLIENT_SECRET"),
-            "api_base_url": "https://github.com/login/oauth",
-            # "client_kwargs": {"scope": "email profile"},
-            # "request_token_url": None,
-            "access_token_url": "https://github.com/login/oauth/access_token",
-            "authorize_url": "https://github.com/login/oauth/authorize",
-            # "authorize_params": {"hd": os.environ.get("OAUTH_HOME_DOMAIN", "")},
         },
     },
 ]

@@ -29,6 +29,7 @@ jobs:
                   --set init.adminUser.username=$(adminUsername)
                   --set init.adminUser.email=$(adminEmail)
                   --set init.adminUser.password=$(adminPassword)
+                  --set envFromSecrets[0]="giga-superset-secrets-$(deployEnv)"
                   --set image.repository="$(containerRegistryName).azurecr.io/giga-superset"
                   --set-string image.tag="$(Build.SourceVersion)"
                   --set ingress.enabled=true

@@ -16,4 +16,4 @@ stages:
       - BuildAndPush
       - CreateConfig
     jobs:
-      - template: deploy.yaml
+      - template: helm-deploy.yaml

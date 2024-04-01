@@ -36,14 +36,16 @@ serviceAccountName: ~
 serviceAccount:
   # -- Create custom service account for Superset. If create: true and serviceAccountName is not provided, `superset.fullname` will be used.
   create: false
-  annotations: {}
+  annotations: { }
 
 # -- Install additional packages and do any other bootstrap configuration in this script
 # For production clusters it's recommended to build own image with this step done in CI
 # @default -- see `values.yaml`
 bootstrapScript: |
   #!/bin/bash
-  pip install Authlib &&\
+  pip install Authlib==1.3.0\
+              trino[sqlalchemy]==0.328.0 \
+              psycopg2-binary==2.9.9 && \
   if [ ! -f ~/bootstrap ]; then echo "Running Superset with uid {{ .Values.runAsUser }}" > ~/bootstrap; fi
 
 # -- The name of the secret which we will use to generate a superset_config.py file
@@ -54,7 +56,7 @@ configFromSecret: '{{ template "superset.fullname" . }}-config'
 # This can be useful for secret keys, etc.
 envFromSecret: '{{ template "superset.fullname" . }}-env'
 # -- This can be a list of templated strings
-envFromSecrets: []
+envFromSecrets: [ ]
 
 # -- Extra environment variables that will be passed into pods
 extraEnv:
@@ -102,43 +104,43 @@ extraEnvRaw:
 extraSecretEnv:
   # MAPBOX_API_KEY: ...
   # # Google API Keys: https://console.cloud.google.com/apis/credentials
-  GOOGLE_KEY: 
+  GOOGLE_KEY:
   GOOGLE_SECRET:
   # Azure Credentials ID For Azure Auth
   AZURE_TENANT_ID:
 
 # -- Extra files to mount on `/app/pythonpath`
-extraConfigs: {}
+extraConfigs: { }
   # import_datasources.yaml: |
   #     databases:
   #     - allow_file_upload: true
   #       allow_ctas: true
   #       allow_cvas: true
   #       database_name: example-db
-  #       extra: "{\r\n    \"metadata_params\": {},\r\n    \"engine_params\": {},\r\n    \"\
-  #         metadata_cache_timeout\": {},\r\n    \"schemas_allowed_for_file_upload\": []\r\n\
-  #         }"
-  #       sqlalchemy_uri: example://example-db.local
-  #       tables: []
+#       extra: "{\r\n    \"metadata_params\": {},\r\n    \"engine_params\": {},\r\n    \"\
+#         metadata_cache_timeout\": {},\r\n    \"schemas_allowed_for_file_upload\": []\r\n\
+#         }"
+#       sqlalchemy_uri: example://example-db.local
+#       tables: []
 
 # -- Extra files to mount on `/app/pythonpath` as secrets
-extraSecrets: {}
+extraSecrets: { }
 
-extraVolumes: []
+extraVolumes: [ ]
   # - name: customConfig
   #   configMap:
-  #     name: '{{ template "superset.fullname" . }}-custom-config'
-  # - name: additionalSecret
-  #   secret:
-  #     secretName: my-secret
-  #     defaultMode: 0600
+#     name: '{{ template "superset.fullname" . }}-custom-config'
+# - name: additionalSecret
+#   secret:
+#     secretName: my-secret
+#     defaultMode: 0600
 
-extraVolumeMounts: []
-  # - name: customConfig
-  #   mountPath: /mnt/config
-  #   readOnly: true
-  # - name: additionalSecret:
-  #   mountPath: /mnt/secret
+extraVolumeMounts: [ ]
+# - name: customConfig
+#   mountPath: /mnt/config
+#   readOnly: true
+# - name: additionalSecret:
+#   mountPath: /mnt/secret
 
 # -- A dictionary of overrides to append at the end of superset_config.py - the name does not matter
 # WARNING: the order is not guaranteed
@@ -149,126 +151,11 @@ configOverrides:
   # extend_timeout: |
   #    # Extend timeout to allow long-running queries.
   #    SUPERSET_WEBSERVER_TIMEOUT = ...
-  enable_oauth: |
-    ENABLE_PROXY_FIX = True
-
-    from flask_appbuilder.security.manager import (AUTH_DB, AUTH_OAUTH)
-    AUTH_TYPE = AUTH_DB
-    OAUTH_PROVIDERS = [
-        {
-            "name": "azure",
-            "icon": "fa-windows",
-            "token_key": "access_token",
-            "remote_app": {
-                "client_id": os.environ.get("AZURE_CLIENT_ID"),
-                "client_secret": os.environ.get("AZURE_CLIENT_SECRET"),
-                "api_base_url": f"https://login.microsoftonline.com/{os.environ.get('AZURE_TENANT_ID')}/oauth2",
-                "client_kwargs": {
-                    "scope": "User.read name preferred_username email profile upn",
-                    "resource": os.environ.get("AZURE_CLIENT_ID"),
-                    # Optionally enforce signature JWT verification
-                    "verify_signature": False
-                },
-                "request_token_url": None,
-                "access_token_url": f"https://login.microsoftonline.com/{os.environ.get('AZURE_TENANT_ID')}/oauth2/token",
-                "authorize_url": f"https://login.microsoftonline.com/{os.environ.get('AZURE_TENANT_ID')}/oauth2/authorize",
-            },
-        },
-        {
-            "name": "google",
-            "whitelist": [ os.getenv("OAUTH_WHITELIST_REGEX", "") ],
-            "icon": "fa-google",
-            "token_key": "access_token",
-            "remote_app": {
-                "client_id": os.environ.get("GOOGLE_KEY"),
-                "client_secret": os.environ.get("GOOGLE_SECRET"),
-                "api_base_url": "https://www.googleapis.com/oauth2/v2/",
-                "client_kwargs": {"scope": "email profile"},
-                "request_token_url": None,
-                "access_token_url": "https://accounts.google.com/o/oauth2/token",
-                "authorize_url": "https://accounts.google.com/o/oauth2/auth",
-                "authorize_params": {"hd": os.getenv("OAUTH_HOME_DOMAIN", "")}
-            }
-        },
-    ]
-    # Map Authlib roles to superset roles
-    AUTH_ROLE_ADMIN = 'Admin'
-    AUTH_ROLE_PUBLIC = 'Public'
-    # Will allow user self registration, allowing to create Flask users from Authorized User
-    AUTH_USER_REGISTRATION = True
-    # The default user self registration role
-    AUTH_USER_REGISTRATION_ROLE = "Gamma"
-  # secret: |
-  #   # Generate your own secret key for encryption. Use openssl rand -base64 42 to generate a good key
-  #   SECRET_KEY = 'YOUR_OWN_RANDOM_GENERATED_SECRET_KEY'
-
-  my_override: |
-    PREVIOUS_SECRET_KEY = 'thisISaSECRET_1234'
-    SECRET_KEY = 'SQUBpcW1YSEPZEvUU2S982RUrtKs/BUM3gSzcSCH+vW8YZ6w/RjSNEkL'
-    SUPERSET_WEBSERVER_TIMEOUT = 120
-    SQLLAB_ASYNC_TIME_LIMIT_SEC = 3600
-    SQLLAB_TIMEOUT = 120
-    FEATURE_FLAGS = {
-      "ALERT_REPORTS": True,
-      "TAGGING_SYSTEM": True
-    }
-    DATA_CACHE_CONFIG = {
-      "CACHE_TYPE": "RedisCache",
-      "CACHE_KEY_PREFIX": "superset_results",  # make sure this string is unique to avoid collisions
-      "CACHE_DEFAULT_TIMEOUT": 86400,  # 60 seconds * 60 minutes * 12 hours
-      "CACHE_REDIS_URL": f"redis://{env('REDIS_HOST')}:{env('REDIS_PORT')}/0"
-    }
-
-    TALISMAN_ENABLED = False
-    WTF_CSRF_ENABLED = False
-    SESSION_COOKIE_SAMESITE = None
-
-    SLACK_API_TOKEN = "xoxb-2219394255269-6607458182754-EYxb4X3ZE9QThTneI0zljBz3"
-    WEBDRIVER_BASEURL = "http://superset:8088/"
-    WEBDRIVER_BASEURL_USER_FRIENDLY = WEBDRIVER_BASEURL
-
-    from superset.tasks.types import ExecutorType
-    THUMBNAIL_SELENIUM_USER = 'admin'
-    ALERT_REPORTS_EXECUTE_AS = [ExecutorType.SELENIUM]
-
-  celery_conf: |
-    from celery.schedules import crontab
-
-    class CeleryConfig:
-      broker_url = f"redis://{env('REDIS_HOST')}:{env('REDIS_PORT')}/0"
-      result_backend = f"redis://{env('REDIS_HOST')}:{env('REDIS_PORT')}/0"
-      worker_log_level = "DEBUG"
-      imports = (
-        "superset.sql_lab",
-        "superset.tasks.scheduler",
-        "superset.tasks.cache",
-      )
-      task_annotations = {
-          "sql_lab.get_sql_results": {
-              "rate_limit": "100/s",
-          },
-      }
-      beat_schedule = {
-        "reports.scheduler": {
-          "task": "reports.scheduler",
-          "schedule": crontab(minute="*", hour="*"),
-        },
-        "cache-warmup-hourly": {
-          "task": "cache-warmup",
-          "schedule": crontab(minute="5,15,25,45,55", hour="*"),
-          "kwargs": {
-              "strategy_name": "dashboard_tags",
-              "tags": ["active"],
-          }
-        }
-      }
-
-    CELERY_CONFIG = CeleryConfig
 
 # -- Same as above but the values are files
-configOverridesFiles: {}
-  # extend_timeout: extend_timeout.py
-  # enable_oauth: enable_oauth.py
+configOverridesFiles: { }
+# extend_timeout: extend_timeout.py
+# enable_oauth: enable_oauth.py
 
 configMountPath: "/app/pythonpath"
 
@@ -279,7 +166,7 @@ image:
   tag: ""
   pullPolicy: IfNotPresent
 
-imagePullSecrets: []
+imagePullSecrets: [ ]
 
 initImage:
   repository: jwilder/dockerize
@@ -289,8 +176,8 @@ initImage:
 service:
   type: ClusterIP
   port: 8088
-  annotations: {}
-    # cloud.google.com/load-balancer-type: "Internal"
+  annotations: { }
+  # cloud.google.com/load-balancer-type: "Internal"
   loadBalancerIP: ~
   nodePort:
     # -- (int)
@@ -299,23 +186,23 @@ service:
 ingress:
   enabled: false
   ingressClassName: ~
-  annotations: {}
-    # kubernetes.io/tls-acme: "true"
-    ## Extend timeout to allow long running queries.
-    # nginx.ingress.kubernetes.io/proxy-connect-timeout: "300"
-    # nginx.ingress.kubernetes.io/proxy-read-timeout: "300"
-    # nginx.ingress.kubernetes.io/proxy-send-timeout: "300"
+  annotations: { }
+  # kubernetes.io/tls-acme: "true"
+  ## Extend timeout to allow long running queries.
+  # nginx.ingress.kubernetes.io/proxy-connect-timeout: "300"
+  # nginx.ingress.kubernetes.io/proxy-read-timeout: "300"
+  # nginx.ingress.kubernetes.io/proxy-send-timeout: "300"
   path: /
   pathType: ImplementationSpecific
   hosts:
     - chart-example.local
-  tls: []
-  extraHostsRaw: []
+  tls: [ ]
+  extraHostsRaw: [ ]
   #  - secretName: chart-example-tls
   #    hosts:
   #      - chart-example.local
 
-resources: {}
+resources: { }
   # We usually recommend not to specify default resources and to leave this as a conscious
   # choice for the user. This also increases chances charts run on environments with little
   # resources, such as Minikube. If you do want to specify resources, uncomment the following
@@ -323,15 +210,15 @@ resources: {}
   # The limits below will apply to all Superset components. To set individual resource limitations refer to the pod specific values below.
   # The pod specific values will overwrite anything that is set here.
   # limits:
-  #   cpu: 100m
-  #   memory: 128Mi
-  # requests:
-  #   cpu: 100m
-  #   memory: 128Mi
+#   cpu: 100m
+#   memory: 128Mi
+# requests:
+#   cpu: 100m
+#   memory: 128Mi
 
 # -- Custom hostAliases for all superset pods
 ## https://kubernetes.io/docs/tasks/network/customize-hosts-file-for-pods/
-hostAliases: []
+hostAliases: [ ]
 # - hostnames:
 #   - nodns.my.lan
 #   ip: 18.27.36.45
@@ -356,7 +243,7 @@ supersetNode:
     db_user: superset
     db_pass: superset
     db_name: superset
-  env: {}
+  env: { }
   # -- If true, forces deployment to reload on each upgrade
   forceReload: false
   # -- Init containers
@@ -374,19 +261,19 @@ supersetNode:
         - dockerize -wait "tcp://$DB_HOST:$DB_PORT" -timeout 120s
 
   # -- Launch additional containers into supersetNode pod
-  extraContainers: []
+  extraContainers: [ ]
   # -- Annotations to be added to supersetNode deployment
-  deploymentAnnotations: {}
+  deploymentAnnotations: { }
   # -- Labels to be added to supersetNode deployment
-  deploymentLabels: {}
+  deploymentLabels: { }
   # -- Affinity to be added to supersetNode deployment
-  affinity: {}
+  affinity: { }
   # -- TopologySpreadConstrains to be added to supersetNode deployments
-  topologySpreadConstraints: []
+  topologySpreadConstraints: [ ]
   # -- Annotations to be added to supersetNode pods
-  podAnnotations: {}
+  podAnnotations: { }
   # -- Labels to be added to supersetNode pods
-  podLabels: {}
+  podLabels: { }
   startupProbe:
     httpGet:
       path: /health
@@ -415,20 +302,20 @@ supersetNode:
     periodSeconds: 15
     successThreshold: 1
   # -- Resource settings for the supersetNode pods - these settings overwrite might existing values from the global resources object defined above.
-  resources: {}
+  resources: { }
     # limits:
-    #  cpu: 100m
-    #  memory: 128Mi
-    # requests:
-    #  cpu: 100m
-    #  memory: 128Mi
-  podSecurityContext: {}
-  containerSecurityContext: {}
-  strategy: {}
-    # type: RollingUpdate
-    # rollingUpdate:
-    #   maxSurge: 25%
-    #   maxUnavailable: 25%
+  #  cpu: 100m
+  #  memory: 128Mi
+  # requests:
+  #  cpu: 100m
+  #  memory: 128Mi
+  podSecurityContext: { }
+  containerSecurityContext: { }
+  strategy: { }
+  # type: RollingUpdate
+  # rollingUpdate:
+  #   maxSurge: 25%
+  #   maxUnavailable: 25%
 
 # Superset Celery worker configuration
 supersetWorker:
@@ -455,34 +342,34 @@ supersetWorker:
         - -c
         - dockerize -wait "tcp://$DB_HOST:$DB_PORT" -wait "tcp://$REDIS_HOST:$REDIS_PORT" -timeout 120s
   # -- Launch additional containers into supersetWorker pod
-  extraContainers: []
+  extraContainers: [ ]
   # -- Annotations to be added to supersetWorker deployment
-  deploymentAnnotations: {}
+  deploymentAnnotations: { }
   # -- Labels to be added to supersetWorker deployment
-  deploymentLabels: {}
+  deploymentLabels: { }
   # -- Affinity to be added to supersetWorker deployment
-  affinity: {}
+  affinity: { }
   # -- TopologySpreadConstrains to be added to supersetWorker deployments
-  topologySpreadConstraints: []
+  topologySpreadConstraints: [ ]
   # -- Annotations to be added to supersetWorker pods
-  podAnnotations: {}
+  podAnnotations: { }
   # -- Labels to be added to supersetWorker pods
-  podLabels: {}
+  podLabels: { }
   # -- Resource settings for the supersetWorker pods - these settings overwrite might existing values from the global resources object defined above.
-  resources: {}
+  resources: { }
     # limits:
-    #  cpu: 100m
-    #  memory: 128Mi
-    # requests:
-    #  cpu: 100m
-    #  memory: 128Mi
-  podSecurityContext: {}
-  containerSecurityContext: {}
-  strategy: {}
-    # type: RollingUpdate
-    # rollingUpdate:
-    #   maxSurge: 25%
-    #   maxUnavailable: 25%
+  #  cpu: 100m
+  #  memory: 128Mi
+  # requests:
+  #  cpu: 100m
+  #  memory: 128Mi
+  podSecurityContext: { }
+  containerSecurityContext: { }
+  strategy: { }
+  # type: RollingUpdate
+  # rollingUpdate:
+  #   maxSurge: 25%
+  #   maxUnavailable: 25%
   livenessProbe:
     exec:
       # -- Liveness probe command
@@ -497,9 +384,9 @@ supersetWorker:
     periodSeconds: 60
     successThreshold: 1
   # -- No startup/readiness probes by default since we don't really care about its startup time (it doesn't serve traffic)
-  startupProbe: {}
+  startupProbe: { }
   # -- No startup/readiness probes by default since we don't really care about its startup time (it doesn't serve traffic)
-  readinessProbe: {}
+  readinessProbe: { }
 
 # Superset beat configuration (to trigger scheduled jobs like reports)
 supersetCeleryBeat:
@@ -527,25 +414,25 @@ supersetCeleryBeat:
         - -c
         - dockerize -wait "tcp://$DB_HOST:$DB_PORT" -wait "tcp://$REDIS_HOST:$REDIS_PORT" -timeout 120s
   # -- Annotations to be added to supersetCeleryBeat deployment
-  deploymentAnnotations: {}
+  deploymentAnnotations: { }
   # -- Affinity to be added to supersetCeleryBeat deployment
-  affinity: {}
+  affinity: { }
   # -- TopologySpreadConstrains to be added to supersetCeleryBeat deployments
-  topologySpreadConstraints: []
+  topologySpreadConstraints: [ ]
   # -- Annotations to be added to supersetCeleryBeat pods
-  podAnnotations: {}
+  podAnnotations: { }
   # -- Labels to be added to supersetCeleryBeat pods
-  podLabels: {}
+  podLabels: { }
   # -- Resource settings for the CeleryBeat pods - these settings overwrite might existing values from the global resources object defined above.
-  resources: {}
+  resources: { }
     # limits:
-    #  cpu: 100m
-    #  memory: 128Mi
-    # requests:
-    #  cpu: 100m
-    #  memory: 128Mi
-  podSecurityContext: {}
-  containerSecurityContext: {}
+  #  cpu: 100m
+  #  memory: 128Mi
+  # requests:
+  #  cpu: 100m
+  #  memory: 128Mi
+  podSecurityContext: { }
+  containerSecurityContext: { }
 
 supersetCeleryFlower:
   # -- Enables a Celery flower deployment (management UI to monitor celery jobs)
@@ -561,7 +448,7 @@ supersetCeleryFlower:
     - "celery --app=superset.tasks.celery_app:app flower"
   service:
     type: ClusterIP
-    annotations: {}
+    annotations: { }
     loadBalancerIP: ~
     port: 5555
     nodePort:
@@ -608,25 +495,25 @@ supersetCeleryFlower:
         - -c
         - dockerize -wait "tcp://$DB_HOST:$DB_PORT" -wait "tcp://$REDIS_HOST:$REDIS_PORT" -timeout 120s
   # -- Annotations to be added to supersetCeleryFlower deployment
-  deploymentAnnotations: {}
+  deploymentAnnotations: { }
   # -- Affinity to be added to supersetCeleryFlower deployment
-  affinity: {}
+  affinity: { }
   # -- TopologySpreadConstrains to be added to supersetCeleryFlower deployments
-  topologySpreadConstraints: []
+  topologySpreadConstraints: [ ]
   # -- Annotations to be added to supersetCeleryFlower pods
-  podAnnotations: {}
+  podAnnotations: { }
   # -- Labels to be added to supersetCeleryFlower pods
-  podLabels: {}
+  podLabels: { }
   # -- Resource settings for the CeleryBeat pods - these settings overwrite might existing values from the global resources object defined above.
-  resources: {}
+  resources: { }
     # limits:
-    #  cpu: 100m
-    #  memory: 128Mi
-    # requests:
-    #  cpu: 100m
-    #  memory: 128Mi
-  podSecurityContext: {}
-  containerSecurityContext: {}
+  #  cpu: 100m
+  #  memory: 128Mi
+  # requests:
+  #  cpu: 100m
+  #  memory: 128Mi
+  podSecurityContext: { }
+  containerSecurityContext: { }
 
 supersetWebsockets:
   # -- This is only required if you intend to use `GLOBAL_ASYNC_QUERIES` in `ws` mode
@@ -650,7 +537,7 @@ supersetWebsockets:
       "logLevel": "debug",
       "logToFile": false,
       "logFilename": "app.log",
-      "statsd": { "host": "127.0.0.1", "port": 8125, "globalTags": [] },
+      "statsd": { "host": "127.0.0.1", "port": 8125, "globalTags": [ ] },
       "redis":
         {
           "port": 6379,
@@ -665,24 +552,24 @@ supersetWebsockets:
     }
   service:
     type: ClusterIP
-    annotations: {}
+    annotations: { }
     loadBalancerIP: ~
     port: 8080
     nodePort:
       # -- (int)
       http: nil
-  command: []
-  resources: {}
-  deploymentAnnotations: {}
+  command: [ ]
+  resources: { }
+  deploymentAnnotations: { }
   # -- Affinity to be added to supersetWebsockets deployment
-  affinity: {}
+  affinity: { }
   # -- TopologySpreadConstrains to be added to supersetWebsockets deployments
-  topologySpreadConstraints: []
-  podAnnotations: {}
-  podLabels: {}
-  strategy: {}
-  podSecurityContext: {}
-  containerSecurityContext: {}
+  topologySpreadConstraints: [ ]
+  podAnnotations: { }
+  podLabels: { }
+  strategy: { }
+  podSecurityContext: { }
+  containerSecurityContext: { }
   startupProbe:
     httpGet:
       path: /health
@@ -717,13 +604,13 @@ init:
   # cause the process to be killed due to OOM if it exceeds limit
   # Make sure you are giving a strong password for the admin user creation( else make sure you are changing after setup)
   # Also change the admin email to your own custom email.
-  resources: {}
+  resources: { }
     # limits:
-    #   cpu:
-    #   memory:
-    # requests:
-    #   cpu:
-    #   memory:
+  #   cpu:
+  #   memory:
+  # requests:
+  #   cpu:
+  #   memory:
   # -- Command
   # @default -- a `superset_init.sh` command
   command:
@@ -783,15 +670,15 @@ init:
       superset import_datasources -p {{ .Values.extraConfigMountPath }}/import_datasources.yaml
     fi
   ## Annotations to be added to init job pods
-  podAnnotations: {}
-  podSecurityContext: {}
-  containerSecurityContext: {}
+  podAnnotations: { }
+  podSecurityContext: { }
+  containerSecurityContext: { }
   ## Tolerations to be added to init job pods
-  tolerations: []
+  tolerations: [ ]
   ## Affinity to be added to init job pods
-  affinity: {}
+  affinity: { }
   # -- TopologySpreadConstrains to be added to init job
-  topologySpreadConstraints: []
+  topologySpreadConstraints: [ ]
 
 # -- Configuration values for the postgresql dependency.
 # ref: https://github.com/kubernetes/charts/blob/master/stable/postgresql/README.md
@@ -888,11 +775,11 @@ redis:
       accessModes:
         - ReadWriteOnce
 
-nodeSelector: {}
+nodeSelector: { }
 
-tolerations: []
+tolerations: [ ]
 
-affinity: {}
+affinity: { }
 
 # -- TopologySpreadConstrains to be added to all deployments
-topologySpreadConstraints: []
+topologySpreadConstraints: [ ]

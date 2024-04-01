@@ -43,10 +43,17 @@ stages:
                     command: upgrade
                     chartType: Name
                     chartName: superset/superset
+                    chartVersion: 0.12.6
                     releaseName: superset
                     valueFile: helm/values-staging.yaml
                     namespace: $(kubernetesNamespace)
-                    arguments: "--set init.adminUser.username=$(adminUsername),init.adminUser.email=$(adminEmail),init.adminUser.password=$(adminPassword),extraSecretEnv.GOOGLE_KEY=$(CLIENT_ID_GOOGLE),extraSecretEnv.GOOGLE_SECRET=$(CLIENT_SECRET_GOOGLE),extraSecretEnv.AZURE_TENANT_ID=$(azureTenantID)"
+                    arguments: >
+                      --set init.adminUser.username=$(adminUsername)
+                      --set init.adminUser.email=$(adminEmail)
+                      --set init.adminUser.password=$(adminPassword)
+                      --set extraSecretEnv.GOOGLE_KEY=$(googleKey)
+                      --set extraSecretEnv.GOOGLE_SECRET=$(googleSecret)
+                      --set extraSecretEnv.AZURE_TENANT_ID=$(azureTenantID)
 
                 - task: Kubernetes@1
                   displayName: Set up Ingress

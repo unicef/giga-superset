@@ -19,7 +19,7 @@ jobs:
                   apiVersion: v1
                   kind: Secret
                   metadata:
-                    name: giga-superset-secrets
+                    name: "giga-superset-secrets-$(deployEnv)"
                     labels:
                       app.kubernetes.io/name: giga-superset
                       app.kubernetes.io/part-of: giga-dataops-platform
@@ -27,23 +27,7 @@ jobs:
                   stringData:
                       POSTGRESQL_PASSWORD: "$(postgresqlPassword)"
                       SECRET_KEY: "$(secretKey)"
-
-            - task: Kubernetes@1
-              displayName: Create Trino ExternalName service
-              inputs:
-                namespace: $(kubernetesNamespace)
-                configurationType: inline
-                command: apply
-                useConfigurationFile: true
-                inline: |
-                  apiVersion: v1
-                  kind: Service
-                  metadata:
-                    name: trino-external
-                  spec:
-                    type: ExternalName
-                    externalName: "trino.io-trino-$(deployEnv).svc.cluster.local"
-                    ports:
-                      - port: 8080
-                        protocol: TCP
-                        targetPort: 8080
+                      GOOGLE_KEY: "$(googleKey)"
+                      GOOGLE_SECRET: "$(googleSecret)"
+                      AZURE_TENANT_ID: "$(azureTenantID)"
+                      DEPLOY_ENV: "$(deployEnv)"
