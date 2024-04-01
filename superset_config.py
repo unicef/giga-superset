@@ -21,7 +21,7 @@ SECRET_KEY = os.environ.get("SECRET_KEY")
 
 DATABASE_PASSWORD = os.environ.get("POSTGRESQL_PASSWORD")
 
-SQLALCHEMY_DATABASE_URI = f"postgresql+psycopg2://giga-superset:{DATABASE_PASSWORD}@superset-postgresql:5432/giga-superset"
+SQLALCHEMY_DATABASE_URI = f"postgresql+psycopg2://superset:{DATABASE_PASSWORD}@superset-postgresql:5432/superset"
 
 
 # Authlib
