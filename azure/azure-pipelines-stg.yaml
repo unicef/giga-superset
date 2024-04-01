@@ -9,55 +9,7 @@ pool:
   vmImage: ubuntu-latest
 
 variables:
-  kubernetesServiceConnection: $(KUBERNETES_SERVICE_CONNECTION)
-  kubernetesNamespace: $(KUBERNETES_NAMESPACE)
-  kubernetesEnvironment: $(KUBERNETES_ENVIRONMENT)
-  adminEmail: $(ADMIN_EMAIL)
-  adminUsername: $(ADMIN_USERNAME)
-  adminPassword: $(ADMIN_PASSWORD)
-  azureTenantID: $(AZURE_TENANT_ID)
+  - template: templates/variables.yaml
 
 stages:
-  - stage: Deploy
-    displayName: Superset Deploy Stage
-    jobs:
-      - deployment: Deploy
-        displayName: Superset Deployment
-        environment: $(kubernetesEnvironment)
-        strategy:
-          runOnce:
-            deploy:
-              steps:
-                - checkout: self
-                - task: HelmDeploy@0
-                  displayName: 'Add Superset Helm Repo'
-                  enabled: true
-                  inputs:
-                    command: 'repo'
-                    arguments: 'add superset https://apache.github.io/superset'
-                    namespace: $(kubernetesNamespace)
-
-                - task: HelmDeploy@0
-                  displayName: Helm deploy Superset
-                  inputs:
-                    command: upgrade
-                    chartType: Name
-                    chartName: superset/superset
-                    chartVersion: 0.12.6
-                    releaseName: superset
-                    valueFile: helm/values-staging.yaml
-                    namespace: $(kubernetesNamespace)
-                    arguments: >
-                      --set init.adminUser.username=$(adminUsername)
-                      --set init.adminUser.email=$(adminEmail)
-                      --set init.adminUser.password=$(adminPassword)
-                      --set extraSecretEnv.GOOGLE_KEY=$(googleKey)
-                      --set extraSecretEnv.GOOGLE_SECRET=$(googleSecret)
-                      --set extraSecretEnv.AZURE_TENANT_ID=$(azureTenantID)
-
-                - task: Kubernetes@1
-                  displayName: Set up Ingress
-                  inputs:
-                    command: apply
-                    arguments: '-f azure/ingress-staging.yaml'
-                    namespace: $(kubernetesNamespace)
+  - template: templates/deploy-workflow.yaml
