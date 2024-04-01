@@ -31,3 +31,10 @@ jobs:
                       GOOGLE_SECRET: "$(googleSecret)"
                       AZURE_TENANT_ID: "$(azureTenantID)"
                       DEPLOY_ENV: "$(deployEnv)"
+
+            - task: Kubernetes@1
+              displayName: Delete old ingress
+              inputs:
+                namespace: $(kubernetesNamespace)
+                command: delete
+                arguments: ingress giga-superset-ingress --ignore-not-found
