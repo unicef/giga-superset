@@ -114,9 +114,9 @@ extraConfigs: { }
   # import_datasources.yaml: |
   #     databases:
   #     - allow_file_upload: true
-  #       allow_ctas: true
-  #       allow_cvas: true
-  #       database_name: example-db
+#       allow_ctas: true
+#       allow_cvas: true
+#       database_name: example-db
 #       extra: "{\r\n    \"metadata_params\": {},\r\n    \"engine_params\": {},\r\n    \"\
 #         metadata_cache_timeout\": {},\r\n    \"schemas_allowed_for_file_upload\": []\r\n\
 #         }"
@@ -127,8 +127,8 @@ extraConfigs: { }
 extraSecrets: { }
 
 extraVolumes: [ ]
-  # - name: customConfig
-  #   configMap:
+# - name: customConfig
+#   configMap:
 #     name: '{{ template "superset.fullname" . }}-custom-config'
 # - name: additionalSecret
 #   secret:
@@ -186,16 +186,14 @@ service:
 ingress:
   enabled: false
   ingressClassName: ~
-  annotations: { }
-  # kubernetes.io/tls-acme: "true"
-  ## Extend timeout to allow long running queries.
-  # nginx.ingress.kubernetes.io/proxy-connect-timeout: "300"
-  # nginx.ingress.kubernetes.io/proxy-read-timeout: "300"
-  # nginx.ingress.kubernetes.io/proxy-send-timeout: "300"
+  annotations:
+    kubernetes.io/ingress.class: azure/application-gateway
+    appgw.ingress.kubernetes.io/appgw-ssl-certificate: "kv-cert-unitst"
+    appgw.ingress.kubernetes.io/ssl-redirect: "true"
+    appgw.ingress.kubernetes.io/request-timeout: "120"
   path: /
-  pathType: ImplementationSpecific
-  hosts:
-    - chart-example.local
+  pathType: Prefix
+  hosts: [ ]
   tls: [ ]
   extraHostsRaw: [ ]
   #  - secretName: chart-example-tls
@@ -207,9 +205,9 @@ resources: { }
   # choice for the user. This also increases chances charts run on environments with little
   # resources, such as Minikube. If you do want to specify resources, uncomment the following
   # lines, adjust them as necessary, and remove the curly braces after 'resources:'.
-  # The limits below will apply to all Superset components. To set individual resource limitations refer to the pod specific values below.
-  # The pod specific values will overwrite anything that is set here.
-  # limits:
+# The limits below will apply to all Superset components. To set individual resource limitations refer to the pod specific values below.
+# The pod specific values will overwrite anything that is set here.
+# limits:
 #   cpu: 100m
 #   memory: 128Mi
 # requests:
@@ -303,7 +301,7 @@ supersetNode:
     successThreshold: 1
   # -- Resource settings for the supersetNode pods - these settings overwrite might existing values from the global resources object defined above.
   resources: { }
-    # limits:
+  # limits:
   #  cpu: 100m
   #  memory: 128Mi
   # requests:
@@ -357,7 +355,7 @@ supersetWorker:
   podLabels: { }
   # -- Resource settings for the supersetWorker pods - these settings overwrite might existing values from the global resources object defined above.
   resources: { }
-    # limits:
+  # limits:
   #  cpu: 100m
   #  memory: 128Mi
   # requests:
@@ -425,7 +423,7 @@ supersetCeleryBeat:
   podLabels: { }
   # -- Resource settings for the CeleryBeat pods - these settings overwrite might existing values from the global resources object defined above.
   resources: { }
-    # limits:
+  # limits:
   #  cpu: 100m
   #  memory: 128Mi
   # requests:
@@ -506,7 +504,7 @@ supersetCeleryFlower:
   podLabels: { }
   # -- Resource settings for the CeleryBeat pods - these settings overwrite might existing values from the global resources object defined above.
   resources: { }
-    # limits:
+  # limits:
   #  cpu: 100m
   #  memory: 128Mi
   # requests:
@@ -605,7 +603,7 @@ init:
   # Make sure you are giving a strong password for the admin user creation( else make sure you are changing after setup)
   # Also change the admin email to your own custom email.
   resources: { }
-    # limits:
+  # limits:
   #   cpu:
   #   memory:
   # requests:
