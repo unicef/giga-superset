@@ -23,7 +23,9 @@ DATABASE_USERNAME = os.environ.get("POSTGRESQL_USERNAME")
 
 DATABASE_PASSWORD = os.environ.get("POSTGRESQL_PASSWORD")
 
-SQLALCHEMY_DATABASE_URI = f"postgresql+psycopg2://{DATABASE_USERNAME}:{DATABASE_PASSWORD}@superset-postgresql:5432/superset"
+DATABASE_NAME = os.environ.get("POSTGRESQL_DATABASE")
+
+SQLALCHEMY_DATABASE_URI = f"postgresql+psycopg2://{DATABASE_USERNAME}:{DATABASE_PASSWORD}@superset-postgresql:5432/{DATABASE_NAME}"
 
 
 # Authlib

@@ -7,6 +7,7 @@ variables:
   deployEnv: $(DEPLOY_ENV)
   postgresqlUsername: $(POSTGRESQL_USERNAME)
   postgresqlPassword: $(POSTGRESQL_PASSWORD)
+  postgresqlDatabase: $(POSTGRESQL_DATABASE)
   secretKey: $(SECRET_KEY)
   containerRegistryName: $(ACR_NAME)
   containerRegistryServiceConnection: $(ACR_SERVICE_CONNECTION)
