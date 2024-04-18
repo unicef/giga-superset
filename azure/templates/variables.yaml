@@ -12,3 +12,4 @@ variables:
   googleKey: $(CLIENT_ID_GOOGLE)
   googleSecret: $(CLIENT_SECRET_GOOGLE)
   azureTenantID: $(AZURE_TENANT_ID)
+  ingressHost: $(INGRESS_HOST)
