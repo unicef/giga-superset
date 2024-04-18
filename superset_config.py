@@ -19,9 +19,11 @@ PREVIOUS_SECRET_KEY = "thisISaSECRET_1234"  # gitleaks:allow
 
 SECRET_KEY = os.environ.get("SECRET_KEY")
 
+DATABASE_USERNAME = os.environ.get("POSTGRESQL_USERNAME")
+
 DATABASE_PASSWORD = os.environ.get("POSTGRESQL_PASSWORD")
 
-SQLALCHEMY_DATABASE_URI = f"postgresql+psycopg2://superset:{DATABASE_PASSWORD}@superset-postgresql:5432/superset"
+SQLALCHEMY_DATABASE_URI = f"postgresql+psycopg2://{DATABASE_USERNAME}:{DATABASE_PASSWORD}@superset-postgresql:5432/superset"
 
 
 # Authlib
