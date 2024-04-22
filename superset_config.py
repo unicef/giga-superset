@@ -6,6 +6,8 @@ from flask_appbuilder.security.manager import AUTH_DB
 from flask_caching.backends.rediscache import RedisCache
 from superset.tasks.types import ExecutorType
 
+from typing import Callable
+
 ENABLE_PROXY_FIX = True
 
 FEATURE_FLAGS = {
@@ -182,13 +184,16 @@ TALISMAN_CONFIG = {
 
 # Misc
 
+def get_slack_api_token() -> str:
+    return os.environ.get("SLACK_API_TOKEN", "")
+
 SUPERSET_WEBSERVER_TIMEOUT = int(timedelta(minutes=2).total_seconds())
 
 SQLLAB_ASYNC_TIME_LIMIT_SEC = int(timedelta(hours=1).total_seconds())
 
 SQLLAB_TIMEOUT = int(timedelta(minutes=2).total_seconds())
 
-SLACK_API_TOKEN = os.environ.get("SLACK_API_TOKEN")
+SLACK_API_TOKEN = get_slack_api_token()
 
 WEBDRIVER_BASEURL = "http://superset:8088/"
 
