@@ -33,3 +33,4 @@ jobs:
                       GOOGLE_SECRET: "$(googleSecret)"
                       AZURE_TENANT_ID: "$(azureTenantID)"
                       DEPLOY_ENV: "$(deployEnv)"
+                      SLACK_API_TOKEN: "$(slackToken)"
