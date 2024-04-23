@@ -161,7 +161,7 @@ RESULTS_BACKEND = RedisCache(
 TALISMAN_ENABLED = True
 
 TALISMAN_CONFIG = {
-    "force_https": True,
+    "force_https": False,
     "force_https_permanent": True,
     "frame_options": "SAMEORIGIN",
     "strict_transport_security_preload": True,
