@@ -25,7 +25,16 @@ DATABASE_PASSWORD = os.environ.get("POSTGRESQL_PASSWORD")
 
 DATABASE_NAME = os.environ.get("POSTGRESQL_DATABASE")
 
+
+# SQLAlchemy
+
 SQLALCHEMY_DATABASE_URI = f"postgresql+psycopg2://{DATABASE_USERNAME}:{DATABASE_PASSWORD}@superset-postgresql:5432/{DATABASE_NAME}"
+
+SQLALCHEMY_POOL_SIZE = 20
+
+SQLALCHEMY_MAX_OVERFLOW = 15
+
+SQLALCHEMY_POOL_TIMEOUT = 300
 
 
 # Authlib
@@ -197,7 +206,15 @@ SLACK_API_TOKEN = get_slack_api_token()
 
 WEBDRIVER_BASEURL = "http://superset:8088/"
 
-WEBDRIVER_BASEURL_USER_FRIENDLY = WEBDRIVER_BASEURL
+
+def get_baseurl_user_friendly() -> str:
+    ingress = os.environ.get("INGRESS_HOST")
+    if ingress is None:
+        return WEBDRIVER_BASEURL
+    return f"https://{ingress}"
+
+
+WEBDRIVER_BASEURL_USER_FRIENDLY = get_baseurl_user_friendly()
 
 THUMBNAIL_SELENIUM_USER = "admin"
 
