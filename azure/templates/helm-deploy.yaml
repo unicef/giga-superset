@@ -17,15 +17,16 @@ jobs:
 
             - task: HelmDeploy@0
               displayName: Helm deploy Superset
+              condition: or(eq(variables.environment, 'dev'), eq(variables.environment, 'stg'))
               inputs:
                 command: upgrade
                 chartType: Name
                 chartName: superset/superset
+                chartVersion: 0.12.6
                 releaseName: superset
                 valueFile: "helm/values-$(deployEnv).yaml"
                 namespace: $(kubernetesNamespace)
                 arguments: >
-                  --version 0.12.6
                   --set init.adminUser.username=$(adminUsername)
                   --set init.adminUser.email=$(adminEmail)
                   --set init.adminUser.password=$(adminPassword)
@@ -34,3 +35,25 @@ jobs:
                   --set-string image.tag="$(Build.SourceVersion)"
                   --set ingress.enabled=true
                   --set ingress.hosts[0]="$(ingressHost)"
+
+            - task: HelmDeploy@0
+              displayName: Helm deploy production-config Superset
+              condition: eq(variables.environment, 'prd')
+              inputs:
+                command: upgrade
+                chartType: Name
+                chartName: superset/superset
+                chartVersion: 0.12.6
+                releaseName: superset
+                valueFile: "helm/values-$(deployEnv).yaml"
+                namespace: $(kubernetesNamespace)
+                arguments: >
+                  --set init.adminUser.username=$(adminUsername)
+                  --set init.adminUser.email=$(adminEmail)
+                  --set init.adminUser.password=$(adminPassword)
+                  --set envFromSecrets[0]="giga-superset-secrets-$(deployEnv)"
+                  --set image.repository="$(containerRegistryName).azurecr.io/giga-superset"
+                  --set-string image.tag="$(Build.SourceVersion)"
+                  --set ingress.enabled=true
+                  --set ingress.hosts[0]="$(ingressHost)"
+                  --set ingress.annotations."appgw\.ingress\.kubernetes\.io/appgw-ssl-certificate"=kv-cert-gigaglobal
