@@ -167,11 +167,11 @@ RESULTS_BACKEND = RedisCache(
 
 # Talisman
 
-TALISMAN_ENABLED = True
+TALISMAN_ENABLED = False
 
 TALISMAN_CONFIG = {
     "force_https": False,
-    "force_https_permanent": True,
+    "force_https_permanent": False,
     "frame_options": "SAMEORIGIN",
     "strict_transport_security_preload": True,
     "strict_transport_security_max_age": int(timedelta(days=365).total_seconds()),
@@ -191,26 +191,29 @@ TALISMAN_CONFIG = {
 
 # Misc
 
-
-def get_slack_api_token() -> str:
-    return os.environ.get("SLACK_API_TOKEN", "")
-
-
 SUPERSET_WEBSERVER_TIMEOUT = int(timedelta(minutes=2).total_seconds())
 
 SQLLAB_ASYNC_TIME_LIMIT_SEC = int(timedelta(hours=1).total_seconds())
 
 SQLLAB_TIMEOUT = int(timedelta(minutes=2).total_seconds())
 
+
+# Alerts/Reports
+
+
+def get_slack_api_token() -> str:
+    return os.environ.get("SLACK_API_TOKEN", "")
+
+
 SLACK_API_TOKEN = get_slack_api_token()
 
-WEBDRIVER_BASEURL = "http://superset:8088/"
+WEBDRIVER_BASEURL = "http://superset:8088"
 
 
 def get_baseurl_user_friendly() -> str:
     ingress = os.environ.get("INGRESS_HOST")
     if ingress is None:
-        return WEBDRIVER_BASEURL
+        return "http://localhost:8088"
     return f"https://{ingress}"
 
 
@@ -219,3 +222,5 @@ WEBDRIVER_BASEURL_USER_FRIENDLY = get_baseurl_user_friendly()
 THUMBNAIL_SELENIUM_USER = "admin"
 
 ALERT_REPORTS_EXECUTE_AS = [ExecutorType.SELENIUM]
+
+ALERT_REPORTS_NOTIFICATION_DRY_RUN = False
