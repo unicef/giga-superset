@@ -1,10 +1,15 @@
+import logging
 import os
 from datetime import timedelta
+from typing import Any
 
 from celery.schedules import crontab
 from flask_appbuilder.security.manager import AUTH_OAUTH
 from flask_caching.backends.rediscache import RedisCache
+from superset import SupersetSecurityManager
 from superset.tasks.types import ExecutorType
+
+logger = logging.getLogger(__name__)
 
 ENABLE_PROXY_FIX = True
 
@@ -57,6 +62,7 @@ OAUTH_PROVIDERS = [
                 "scope": f"openid profile offline_access https://{AZURE_TENANT_NAME}.onmicrosoft.com/{AZURE_CLIENT_ID}/User.Impersonate",
                 "response_type": "code",
                 "response_mode": "query",
+                "resource": AZURE_CLIENT_ID,
             },
             "code_challenge_method": "S256",
         },
@@ -84,14 +90,37 @@ AUTH_ROLE_PUBLIC = "Public"
 
 AUTH_USER_REGISTRATION = True
 
-AUTH_USER_REGISTRATION_ROLE = "Public"
+AUTH_USER_REGISTRATION_ROLE = "Admin"
 
 AUTH_ROLES_SYNC_AT_LOGIN = True
 
 AUTH_ROLES_MAPPING = {
-    "Alpha": ["Super", "Admin", "Developer"],
+    "Admin": ["Super", "Admin", "Developer"],
     "Gamma": ["Regular"],
 }
+
+
+class CustomSsoSecurityManager(SupersetSecurityManager):
+    def get_oauth_user_info(
+        self,
+        provider: str,
+        resp: dict[str, Any],
+    ) -> dict[str, Any]:
+        if provider == "azure":
+            me = self._decode_and_validate_azure_jwt(resp["id_token"])
+            logger.debug("User info from Azure: %s", me)
+            return {
+                "email": me["email"],
+                "first_name": me.get("given_name", ""),
+                "last_name": me.get("family_name", ""),
+                "username": me["email"],
+                "role_keys": me.get("groups", []),
+            }
+        else:
+            return super().get_oauth_user_info(provider, resp)
+
+
+CUSTOM_SECURITY_MANAGER = CustomSsoSecurityManager
 
 
 # Flask-WTF
@@ -105,11 +134,11 @@ WTF_CSRF_TIME_LIMIT = int(timedelta(days=365).total_seconds())
 
 # Session cookie
 
-SESSION_COOKIE_SAMESITE = "Strict"
+SESSION_COOKIE_SAMESITE = "Lax"
 
 SESSION_COOKIE_SECURE = True
 
-SESSION_COOKIE_HTTPONLY = True
+SESSION_COOKIE_HTTPONLY = False
 
 
 # Redis
