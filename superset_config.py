@@ -4,7 +4,7 @@ from datetime import timedelta
 from typing import Any
 
 from celery.schedules import crontab
-from flask_appbuilder.security.manager import AUTH_OAUTH
+from flask_appbuilder.const import AUTH_DB
 from flask_caching.backends.rediscache import RedisCache
 from superset import SupersetSecurityManager
 from superset.tasks.types import ExecutorType
@@ -44,9 +44,11 @@ SQLALCHEMY_POOL_TIMEOUT = 300
 
 # Authlib
 
-AUTH_TYPE = AUTH_OAUTH
+AUTH_TYPE = AUTH_DB
 
 AZURE_CLIENT_ID = os.environ.get("AZURE_CLIENT_ID")
+AZURE_CLIENT_SECRET = os.environ.get("AZURE_CLIENT_SECRET")
+AZURE_TENANT_ID = os.environ.get("AZURE_TENANT_ID")
 AZURE_TENANT_NAME = os.environ.get("AZURE_TENANT_NAME")
 AZURE_POLICY_NAME = os.environ.get("AZURE_POLICY_NAME")
 
@@ -67,6 +69,24 @@ OAUTH_PROVIDERS = [
             "code_challenge_method": "S256",
         },
     },
+    # {
+    #     "name": "azure",
+    #     "icon": "fa-windows",
+    #     "token_key": "access_token",
+    #     "remote_app": {
+    #         "client_id": AZURE_CLIENT_ID,
+    #         "client_secret": AZURE_CLIENT_SECRET,
+    #         "api_base_url": f"https://login.microsoftonline.com/{AZURE_TENANT_ID}/oauth2",
+    #         "client_kwargs": {
+    #             "scope": "User.read name preferred_username email profile upn",
+    #             "resource": AZURE_CLIENT_ID,
+    #             "verify_signature": False,
+    #         },
+    #         "request_token_url": None,
+    #         "access_token_url": f"https://login.microsoftonline.com/{AZURE_TENANT_ID}/oauth2/token",
+    #         "authorize_url": f"https://login.microsoftonline.com/{AZURE_TENANT_ID}/oauth2/authorize",
+    #     },
+    # },
     # {
     #     "name": "google",
     #     "icon": "fa-google",
@@ -90,9 +110,9 @@ AUTH_ROLE_PUBLIC = "Public"
 
 AUTH_USER_REGISTRATION = True
 
-AUTH_USER_REGISTRATION_ROLE = "Public"
+AUTH_USER_REGISTRATION_ROLE = "Gamma"
 
-AUTH_ROLES_SYNC_AT_LOGIN = True
+AUTH_ROLES_SYNC_AT_LOGIN = False
 
 AUTH_ROLES_MAPPING = {
     "Admin": ["Super", "Admin", "Developer"],
@@ -120,7 +140,7 @@ class CustomSsoSecurityManager(SupersetSecurityManager):
             return super().get_oauth_user_info(provider, resp)
 
 
-CUSTOM_SECURITY_MANAGER = CustomSsoSecurityManager
+# CUSTOM_SECURITY_MANAGER = CustomSsoSecurityManager
 
 
 # Flask-WTF

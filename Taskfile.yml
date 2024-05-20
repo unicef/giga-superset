@@ -57,10 +57,9 @@ tasks:
         --set postgresql.primary.livenessProbe.enabled=false
         --set image.repository={{.SUPERSET_IMAGE_REPOSITORY}}
         --set-string image.tag={{.COMMIT_SHA}}
-
-  #        --set init.adminUser.username={{.ADMIN_USERNAME}}
-  #        --set init.adminUser.email={{.ADMIN_EMAIL}}
-  #        --set init.adminUser.password={{.ADMIN_PASSWORD}}
+        --set init.adminUser.username={{.ADMIN_USERNAME}}
+        --set init.adminUser.email={{.ADMIN_EMAIL}}
+        --set init.adminUser.password={{.ADMIN_PASSWORD}}
 
   k8s-prereqs:
     internal: true
