@@ -43,9 +43,6 @@ serviceAccount:
 # @default -- see `values.yaml`
 bootstrapScript: |
   #!/bin/bash
-  pip install authlib==1.3.0 \
-              trino[sqlalchemy]==0.328.0 \
-              psycopg2-binary==2.9.9
   if [ ! -f ~/bootstrap ]; then echo "Running Superset with uid {{ .Values.runAsUser }}" > ~/bootstrap; fi
 
 # -- The name of the secret which we will use to generate a superset_config.py file
@@ -311,7 +308,15 @@ supersetNode:
   # -- Labels to be added to supersetNode deployment
   deploymentLabels: { }
   # -- Affinity to be added to supersetNode deployment
-  affinity: { }
+  affinity:
+    nodeAffinity:
+      requiredDuringSchedulingIgnoredDuringExecution:
+        nodeSelectorTerms:
+          - matchExpressions:
+              - key: kubernetes.io/arch
+                operator: NotIn
+                values:
+                  - arm64
   # -- TopologySpreadConstrains to be added to supersetNode deployments
   topologySpreadConstraints: [ ]
   # -- Annotations to be added to supersetNode pods
@@ -406,7 +411,15 @@ supersetWorker:
   # -- Labels to be added to supersetWorker deployment
   deploymentLabels: { }
   # -- Affinity to be added to supersetWorker deployment
-  affinity: { }
+  affinity:
+    nodeAffinity:
+      requiredDuringSchedulingIgnoredDuringExecution:
+        nodeSelectorTerms:
+          - matchExpressions:
+              - key: kubernetes.io/arch
+                operator: NotIn
+                values:
+                  - arm64
   # -- TopologySpreadConstrains to be added to supersetWorker deployments
   topologySpreadConstraints: [ ]
   # -- Annotations to be added to supersetWorker pods
@@ -449,7 +462,7 @@ supersetWorker:
 # Superset beat configuration (to trigger scheduled jobs like reports)
 supersetCeleryBeat:
   # -- This is only required if you intend to use alerts and reports
-  enabled: false
+  enabled: true
   # -- Sets the [pod disruption budget](https://kubernetes.io/docs/tasks/run-application/configure-pdb/) for supersetCeleryBeat pods
   podDisruptionBudget:
     # -- Whether the pod disruption budget should be created
@@ -484,7 +497,15 @@ supersetCeleryBeat:
   # -- Annotations to be added to supersetCeleryBeat deployment
   deploymentAnnotations: { }
   # -- Affinity to be added to supersetCeleryBeat deployment
-  affinity: { }
+  affinity:
+    nodeAffinity:
+      requiredDuringSchedulingIgnoredDuringExecution:
+        nodeSelectorTerms:
+          - matchExpressions:
+              - key: kubernetes.io/arch
+                operator: NotIn
+                values:
+                  - arm64
   # -- TopologySpreadConstrains to be added to supersetCeleryBeat deployments
   topologySpreadConstraints: [ ]
   # -- Annotations to be added to supersetCeleryBeat pods
@@ -575,7 +596,15 @@ supersetCeleryFlower:
   # -- Annotations to be added to supersetCeleryFlower deployment
   deploymentAnnotations: { }
   # -- Affinity to be added to supersetCeleryFlower deployment
-  affinity: { }
+  affinity:
+    nodeAffinity:
+      requiredDuringSchedulingIgnoredDuringExecution:
+        nodeSelectorTerms:
+          - matchExpressions:
+              - key: kubernetes.io/arch
+                operator: NotIn
+                values:
+                  - arm64
   # -- TopologySpreadConstrains to be added to supersetCeleryFlower deployments
   topologySpreadConstraints: [ ]
   # -- Annotations to be added to supersetCeleryFlower pods
@@ -766,7 +795,15 @@ init:
   ## Tolerations to be added to init job pods
   tolerations: [ ]
   ## Affinity to be added to init job pods
-  affinity: { }
+  affinity:
+    nodeAffinity:
+      requiredDuringSchedulingIgnoredDuringExecution:
+        nodeSelectorTerms:
+          - matchExpressions:
+              - key: kubernetes.io/arch
+                operator: NotIn
+                values:
+                  - arm64
   # -- TopologySpreadConstrains to be added to init job
   topologySpreadConstraints: [ ]
 
@@ -819,6 +856,15 @@ postgresql:
     service:
       ports:
         postgresql: "5432"
+    affinity:
+      nodeAffinity:
+        requiredDuringSchedulingIgnoredDuringExecution:
+          nodeSelectorTerms:
+            - matchExpressions:
+                - key: kubernetes.io/arch
+                  operator: NotIn
+                  values:
+                    - arm64
 
 # -- Configuration values for the Redis dependency.
 # ref: https://github.com/bitnami/charts/blob/master/bitnami/redis
@@ -872,6 +918,15 @@ redis:
         - ReadWriteOnce
     volumePermissions:
       enabled: true
+    affinity:
+      nodeAffinity:
+        requiredDuringSchedulingIgnoredDuringExecution:
+          nodeSelectorTerms:
+            - matchExpressions:
+                - key: kubernetes.io/arch
+                  operator: NotIn
+                  values:
+                    - arm64
 
 nodeSelector: { }
 

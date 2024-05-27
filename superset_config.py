@@ -1,10 +1,15 @@
+import logging
 import os
 from datetime import timedelta
+from typing import Any
 
 from celery.schedules import crontab
-from flask_appbuilder.security.manager import AUTH_DB
+from flask_appbuilder.const import AUTH_DB
 from flask_caching.backends.rediscache import RedisCache
+from superset import SupersetSecurityManager
 from superset.tasks.types import ExecutorType
+
+logger = logging.getLogger(__name__)
 
 ENABLE_PROXY_FIX = True
 
@@ -25,14 +30,27 @@ DATABASE_PASSWORD = os.environ.get("POSTGRESQL_PASSWORD")
 
 DATABASE_NAME = os.environ.get("POSTGRESQL_DATABASE")
 
+
+# SQLAlchemy
+
 SQLALCHEMY_DATABASE_URI = f"postgresql+psycopg2://{DATABASE_USERNAME}:{DATABASE_PASSWORD}@superset-postgresql:5432/{DATABASE_NAME}"
+
+SQLALCHEMY_POOL_SIZE = 20
+
+SQLALCHEMY_MAX_OVERFLOW = 15
+
+SQLALCHEMY_POOL_TIMEOUT = 300
 
 
 # Authlib
 
 AUTH_TYPE = AUTH_DB
 
+AZURE_CLIENT_ID = os.environ.get("AZURE_CLIENT_ID")
+AZURE_CLIENT_SECRET = os.environ.get("AZURE_CLIENT_SECRET")
 AZURE_TENANT_ID = os.environ.get("AZURE_TENANT_ID")
+AZURE_TENANT_NAME = os.environ.get("AZURE_TENANT_NAME")
+AZURE_POLICY_NAME = os.environ.get("AZURE_POLICY_NAME")
 
 OAUTH_PROVIDERS = [
     {
@@ -40,34 +58,50 @@ OAUTH_PROVIDERS = [
         "icon": "fa-windows",
         "token_key": "access_token",
         "remote_app": {
-            "client_id": os.environ.get("AZURE_CLIENT_ID"),
-            "client_secret": os.environ.get("AZURE_CLIENT_SECRET"),
-            "api_base_url": f"https://login.microsoftonline.com/{AZURE_TENANT_ID}/oauth2",
+            "client_id": AZURE_CLIENT_ID,
+            "server_metadata_url": f"https://{AZURE_TENANT_NAME}.b2clogin.com/{AZURE_TENANT_NAME}.onmicrosoft.com/{AZURE_POLICY_NAME}/v2.0/.well-known/openid-configuration",
             "client_kwargs": {
-                "scope": "User.read name preferred_username email profile upn",
-                "resource": os.environ.get("AZURE_CLIENT_ID"),
-                "verify_signature": False,
+                "scope": f"openid profile offline_access https://{AZURE_TENANT_NAME}.onmicrosoft.com/{AZURE_CLIENT_ID}/User.Impersonate",
+                "response_type": "code",
+                "response_mode": "query",
+                "resource": AZURE_CLIENT_ID,
             },
-            "request_token_url": None,
-            "access_token_url": f"https://login.microsoftonline.com/{AZURE_TENANT_ID}/oauth2/token",
-            "authorize_url": f"https://login.microsoftonline.com/{AZURE_TENANT_ID}/oauth2/authorize",
+            "code_challenge_method": "S256",
         },
     },
-    {
-        "name": "google",
-        "icon": "fa-google",
-        "token_key": "access_token",
-        "remote_app": {
-            "client_id": os.environ.get("GOOGLE_KEY"),
-            "client_secret": os.environ.get("GOOGLE_SECRET"),
-            "api_base_url": "https://www.googleapis.com/oauth2/v2/",
-            "client_kwargs": {"scope": "email profile"},
-            "request_token_url": None,
-            "access_token_url": "https://accounts.google.com/o/oauth2/token",
-            "authorize_url": "https://accounts.google.com/o/oauth2/auth",
-            "authorize_params": {"hd": os.environ.get("OAUTH_HOME_DOMAIN", "")},
-        },
-    },
+    # {
+    #     "name": "azure",
+    #     "icon": "fa-windows",
+    #     "token_key": "access_token",
+    #     "remote_app": {
+    #         "client_id": AZURE_CLIENT_ID,
+    #         "client_secret": AZURE_CLIENT_SECRET,
+    #         "api_base_url": f"https://login.microsoftonline.com/{AZURE_TENANT_ID}/oauth2",
+    #         "client_kwargs": {
+    #             "scope": "User.read name preferred_username email profile upn",
+    #             "resource": AZURE_CLIENT_ID,
+    #             "verify_signature": False,
+    #         },
+    #         "request_token_url": None,
+    #         "access_token_url": f"https://login.microsoftonline.com/{AZURE_TENANT_ID}/oauth2/token",
+    #         "authorize_url": f"https://login.microsoftonline.com/{AZURE_TENANT_ID}/oauth2/authorize",
+    #     },
+    # },
+    # {
+    #     "name": "google",
+    #     "icon": "fa-google",
+    #     "token_key": "access_token",
+    #     "remote_app": {
+    #         "client_id": os.environ.get("GOOGLE_KEY"),
+    #         "client_secret": os.environ.get("GOOGLE_SECRET"),
+    #         "api_base_url": "https://www.googleapis.com/oauth2/v2/",
+    #         "client_kwargs": {"scope": "email profile"},
+    #         "request_token_url": None,
+    #         "access_token_url": "https://accounts.google.com/o/oauth2/token",
+    #         "authorize_url": "https://accounts.google.com/o/oauth2/auth",
+    #         "authorize_params": {"hd": os.environ.get("OAUTH_HOME_DOMAIN", "")},
+    #     },
+    # },
 ]
 
 AUTH_ROLE_ADMIN = "Admin"
@@ -77,6 +111,36 @@ AUTH_ROLE_PUBLIC = "Public"
 AUTH_USER_REGISTRATION = True
 
 AUTH_USER_REGISTRATION_ROLE = "Gamma"
+
+AUTH_ROLES_SYNC_AT_LOGIN = False
+
+AUTH_ROLES_MAPPING = {
+    "Admin": ["Super", "Admin", "Developer"],
+    "Gamma": ["Regular"],
+}
+
+
+class CustomSsoSecurityManager(SupersetSecurityManager):
+    def get_oauth_user_info(
+        self,
+        provider: str,
+        resp: dict[str, Any],
+    ) -> dict[str, Any]:
+        if provider == "azure":
+            me = self._decode_and_validate_azure_jwt(resp["id_token"])
+            logger.debug("User info from Azure: %s", me)
+            return {
+                "email": me["email"],
+                "first_name": me.get("given_name", ""),
+                "last_name": me.get("family_name", ""),
+                "username": me["email"],
+                "role_keys": me.get("groups", []),
+            }
+        else:
+            return super().get_oauth_user_info(provider, resp)
+
+
+# CUSTOM_SECURITY_MANAGER = CustomSsoSecurityManager
 
 
 # Flask-WTF
@@ -90,11 +154,11 @@ WTF_CSRF_TIME_LIMIT = int(timedelta(days=365).total_seconds())
 
 # Session cookie
 
-SESSION_COOKIE_SAMESITE = "Strict"
+SESSION_COOKIE_SAMESITE = "Lax"
 
 SESSION_COOKIE_SECURE = True
 
-SESSION_COOKIE_HTTPONLY = True
+SESSION_COOKIE_HTTPONLY = False
 
 
 # Redis
@@ -158,11 +222,11 @@ RESULTS_BACKEND = RedisCache(
 
 # Talisman
 
-TALISMAN_ENABLED = True
+TALISMAN_ENABLED = False
 
 TALISMAN_CONFIG = {
     "force_https": False,
-    "force_https_permanent": True,
+    "force_https_permanent": False,
     "frame_options": "SAMEORIGIN",
     "strict_transport_security_preload": True,
     "strict_transport_security_max_age": int(timedelta(days=365).total_seconds()),
@@ -182,23 +246,36 @@ TALISMAN_CONFIG = {
 
 # Misc
 
-
-def get_slack_api_token() -> str:
-    return os.environ.get("SLACK_API_TOKEN", "")
-
-
 SUPERSET_WEBSERVER_TIMEOUT = int(timedelta(minutes=2).total_seconds())
 
 SQLLAB_ASYNC_TIME_LIMIT_SEC = int(timedelta(hours=1).total_seconds())
 
 SQLLAB_TIMEOUT = int(timedelta(minutes=2).total_seconds())
 
+
+# Alerts/Reports
+
+
+def get_slack_api_token() -> str:
+    return os.environ.get("SLACK_API_TOKEN", "")
+
+
 SLACK_API_TOKEN = get_slack_api_token()
 
-WEBDRIVER_BASEURL = "http://superset:8088/"
+WEBDRIVER_BASEURL = "http://superset:8088"
 
-WEBDRIVER_BASEURL_USER_FRIENDLY = WEBDRIVER_BASEURL
+
+def get_baseurl_user_friendly() -> str:
+    ingress = os.environ.get("INGRESS_HOST")
+    if ingress is None:
+        return "http://localhost:8088"
+    return f"https://{ingress}"
+
+
+WEBDRIVER_BASEURL_USER_FRIENDLY = get_baseurl_user_friendly()
 
 THUMBNAIL_SELENIUM_USER = "admin"
 
 ALERT_REPORTS_EXECUTE_AS = [ExecutorType.SELENIUM]
+
+ALERT_REPORTS_NOTIFICATION_DRY_RUN = False
