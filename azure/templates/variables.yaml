@@ -15,4 +15,5 @@ variables:
   googleClientSecret: $(CLIENT_SECRET_GOOGLE)
   azureTenantId: $(AZURE_TENANT_ID)
   slackToken: $(SLACK_API_TOKEN)
+  mapboxApiKey: $(MAPBOX_API_KEY)
   ingressHost: $(INGRESS_HOST)

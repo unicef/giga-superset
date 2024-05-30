@@ -41,4 +41,5 @@ jobs:
                       AZURE_TENANT_ID: "$(azureTenantID)"
                       DEPLOY_ENV: "$(deployEnv)"
                       SLACK_API_TOKEN: "$(slackToken)"
+                      MAPBOX_API_KEY: "$(mapboxApiKey)"
                       INGRESS_HOST: "$(ingressHost)"
