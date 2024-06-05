@@ -4,7 +4,7 @@ from datetime import timedelta
 from typing import Any
 
 from celery.schedules import crontab
-from flask_appbuilder.const import AUTH_OAUTH
+from flask_appbuilder.const import AUTH_DB, AUTH_OAUTH
 from flask_caching.backends.rediscache import RedisCache
 from superset import SupersetSecurityManager
 from superset.tasks.types import ExecutorType
@@ -20,9 +20,12 @@ FEATURE_FLAGS = {
 
 ROW_LIMIT = 300_000
 
+
 PREVIOUS_SECRET_KEY = "thisISaSECRET_1234"  # gitleaks:allow
 
 SECRET_KEY = os.environ.get("SECRET_KEY")
+
+DEPLOY_ENV = os.environ.get("DEPLOY_ENV")
 
 DATABASE_USERNAME = os.environ.get("POSTGRESQL_USERNAME")
 
@@ -44,7 +47,7 @@ SQLALCHEMY_POOL_TIMEOUT = 300
 
 # Authlib
 
-AUTH_TYPE = AUTH_OAUTH
+AUTH_TYPE = AUTH_DB if DEPLOY_ENV == "stg" else AUTH_OAUTH
 
 AZURE_CLIENT_ID = os.environ.get("AZURE_CLIENT_ID")
 AZURE_CLIENT_SECRET = os.environ.get("AZURE_CLIENT_SECRET")
