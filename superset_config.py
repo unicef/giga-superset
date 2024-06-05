@@ -4,7 +4,7 @@ from datetime import timedelta
 from typing import Any
 
 from celery.schedules import crontab
-from flask_appbuilder.const import AUTH_DB
+from flask_appbuilder.const import AUTH_DB, AUTH_OAUTH
 from flask_caching.backends.rediscache import RedisCache
 from superset import SupersetSecurityManager
 from superset.tasks.types import ExecutorType
@@ -20,9 +20,12 @@ FEATURE_FLAGS = {
 
 ROW_LIMIT = 300_000
 
+
 PREVIOUS_SECRET_KEY = "thisISaSECRET_1234"  # gitleaks:allow
 
 SECRET_KEY = os.environ.get("SECRET_KEY")
+
+DEPLOY_ENV = os.environ.get("DEPLOY_ENV")
 
 DATABASE_USERNAME = os.environ.get("POSTGRESQL_USERNAME")
 
@@ -44,7 +47,7 @@ SQLALCHEMY_POOL_TIMEOUT = 300
 
 # Authlib
 
-AUTH_TYPE = AUTH_DB
+AUTH_TYPE = AUTH_DB if DEPLOY_ENV == "stg" else AUTH_OAUTH
 
 AZURE_CLIENT_ID = os.environ.get("AZURE_CLIENT_ID")
 AZURE_CLIENT_SECRET = os.environ.get("AZURE_CLIENT_SECRET")
@@ -52,56 +55,55 @@ AZURE_TENANT_ID = os.environ.get("AZURE_TENANT_ID")
 AZURE_TENANT_NAME = os.environ.get("AZURE_TENANT_NAME")
 AZURE_POLICY_NAME = os.environ.get("AZURE_POLICY_NAME")
 
+GOOGLE_CLIENT_ID = os.environ.get("GOOGLE_CLIENT_ID")
+GOOGLE_CLIENT_SECRET = os.environ.get("GOOGLE_CLIENT_SECRET")
+
 OAUTH_PROVIDERS = [
-    {
-        "name": "azure",
-        "icon": "fa-windows",
-        "token_key": "access_token",
-        "remote_app": {
-            "client_id": AZURE_CLIENT_ID,
-            "server_metadata_url": f"https://{AZURE_TENANT_NAME}.b2clogin.com/{AZURE_TENANT_NAME}.onmicrosoft.com/{AZURE_POLICY_NAME}/v2.0/.well-known/openid-configuration",
-            "client_kwargs": {
-                "scope": f"openid profile offline_access https://{AZURE_TENANT_NAME}.onmicrosoft.com/{AZURE_CLIENT_ID}/User.Impersonate",
-                "response_type": "code",
-                "response_mode": "query",
-                "resource": AZURE_CLIENT_ID,
-            },
-            "code_challenge_method": "S256",
-        },
-    },
     # {
     #     "name": "azure",
     #     "icon": "fa-windows",
     #     "token_key": "access_token",
     #     "remote_app": {
     #         "client_id": AZURE_CLIENT_ID,
-    #         "client_secret": AZURE_CLIENT_SECRET,
-    #         "api_base_url": f"https://login.microsoftonline.com/{AZURE_TENANT_ID}/oauth2",
+    #         "server_metadata_url": f"https://{AZURE_TENANT_NAME}.b2clogin.com/{AZURE_TENANT_NAME}.onmicrosoft.com/{AZURE_POLICY_NAME}/v2.0/.well-known/openid-configuration",
     #         "client_kwargs": {
-    #             "scope": "User.read name preferred_username email profile upn",
+    #             "scope": f"openid profile offline_access https://{AZURE_TENANT_NAME}.onmicrosoft.com/{AZURE_CLIENT_ID}/User.Impersonate",
+    #             "response_type": "code",
+    #             "response_mode": "query",
     #             "resource": AZURE_CLIENT_ID,
-    #             "verify_signature": False,
     #         },
-    #         "request_token_url": None,
-    #         "access_token_url": f"https://login.microsoftonline.com/{AZURE_TENANT_ID}/oauth2/token",
-    #         "authorize_url": f"https://login.microsoftonline.com/{AZURE_TENANT_ID}/oauth2/authorize",
+    #         "code_challenge_method": "S256",
     #     },
     # },
-    # {
-    #     "name": "google",
-    #     "icon": "fa-google",
-    #     "token_key": "access_token",
-    #     "remote_app": {
-    #         "client_id": os.environ.get("GOOGLE_KEY"),
-    #         "client_secret": os.environ.get("GOOGLE_SECRET"),
-    #         "api_base_url": "https://www.googleapis.com/oauth2/v2/",
-    #         "client_kwargs": {"scope": "email profile"},
-    #         "request_token_url": None,
-    #         "access_token_url": "https://accounts.google.com/o/oauth2/token",
-    #         "authorize_url": "https://accounts.google.com/o/oauth2/auth",
-    #         "authorize_params": {"hd": os.environ.get("OAUTH_HOME_DOMAIN", "")},
-    #     },
-    # },
+    {
+        "name": "azure",
+        "icon": "fa-windows",
+        "token_key": "access_token",
+        "remote_app": {
+            "client_id": AZURE_CLIENT_ID,
+            "client_secret": AZURE_CLIENT_SECRET,
+            "server_metadata_url": f"https://login.microsoftonline.com/{AZURE_TENANT_ID}/.well-known/openid-configuration",
+            "client_kwargs": {
+                "scope": "openid profile offline_access User.Read",
+                "resource": AZURE_CLIENT_ID,
+            },
+        },
+    },
+    {
+        "name": "google",
+        "icon": "fa-google",
+        "token_key": "access_token",
+        "remote_app": {
+            "client_id": GOOGLE_CLIENT_ID,
+            "client_secret": GOOGLE_CLIENT_SECRET,
+            "api_base_url": "https://www.googleapis.com/oauth2/v2/",
+            "client_kwargs": {"scope": "email profile"},
+            "request_token_url": None,
+            "access_token_url": "https://accounts.google.com/o/oauth2/token",
+            "authorize_url": "https://accounts.google.com/o/oauth2/auth",
+            "authorize_params": {"hd": os.environ.get("OAUTH_HOME_DOMAIN", "")},
+        },
+    },
 ]
 
 AUTH_ROLE_ADMIN = "Admin"
@@ -110,14 +112,10 @@ AUTH_ROLE_PUBLIC = "Public"
 
 AUTH_USER_REGISTRATION = True
 
-AUTH_USER_REGISTRATION_ROLE = "Gamma"
+# TODO: Switch this to "Public" after the first sign up
+AUTH_USER_REGISTRATION_ROLE = "Admin"
 
 AUTH_ROLES_SYNC_AT_LOGIN = False
-
-AUTH_ROLES_MAPPING = {
-    "Admin": ["Super", "Admin", "Developer"],
-    "Gamma": ["Regular"],
-}
 
 
 class CustomSsoSecurityManager(SupersetSecurityManager):
@@ -279,3 +277,8 @@ THUMBNAIL_SELENIUM_USER = "admin"
 ALERT_REPORTS_EXECUTE_AS = [ExecutorType.SELENIUM]
 
 ALERT_REPORTS_NOTIFICATION_DRY_RUN = False
+
+
+# Mapbox
+
+MAPBOX_API_KEY = os.environ.get("MAPBOX_API_KEY")

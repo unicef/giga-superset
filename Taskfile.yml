@@ -60,6 +60,8 @@ tasks:
         --set init.adminUser.username={{.ADMIN_USERNAME}}
         --set init.adminUser.email={{.ADMIN_EMAIL}}
         --set init.adminUser.password={{.ADMIN_PASSWORD}}
+        --set extraEnvRaw[0].valueFrom.secretKeyRef.name=giga-superset-secrets
+        --set extraEnvRaw[1].valueFrom.secretKeyRef.name=giga-superset-secrets
 
   k8s-prereqs:
     internal: true
