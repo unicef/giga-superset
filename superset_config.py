@@ -112,8 +112,7 @@ AUTH_ROLE_PUBLIC = "Public"
 
 AUTH_USER_REGISTRATION = True
 
-# TODO: Switch this to "Public" after the first sign up
-AUTH_USER_REGISTRATION_ROLE = "Admin"
+AUTH_USER_REGISTRATION_ROLE = "Public"
 
 AUTH_ROLES_SYNC_AT_LOGIN = False
 
