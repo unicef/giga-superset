@@ -59,22 +59,6 @@ GOOGLE_CLIENT_ID = os.environ.get("GOOGLE_CLIENT_ID")
 GOOGLE_CLIENT_SECRET = os.environ.get("GOOGLE_CLIENT_SECRET")
 
 OAUTH_PROVIDERS = [
-    # {
-    #     "name": "azure",
-    #     "icon": "fa-windows",
-    #     "token_key": "access_token",
-    #     "remote_app": {
-    #         "client_id": AZURE_CLIENT_ID,
-    #         "server_metadata_url": f"https://{AZURE_TENANT_NAME}.b2clogin.com/{AZURE_TENANT_NAME}.onmicrosoft.com/{AZURE_POLICY_NAME}/v2.0/.well-known/openid-configuration",
-    #         "client_kwargs": {
-    #             "scope": f"openid profile offline_access https://{AZURE_TENANT_NAME}.onmicrosoft.com/{AZURE_CLIENT_ID}/User.Impersonate",
-    #             "response_type": "code",
-    #             "response_mode": "query",
-    #             "resource": AZURE_CLIENT_ID,
-    #         },
-    #         "code_challenge_method": "S256",
-    #     },
-    # },
     {
         "name": "azure",
         "icon": "fa-windows",
@@ -263,8 +247,7 @@ WEBDRIVER_BASEURL = "http://superset:8088"
 
 
 def get_baseurl_user_friendly() -> str:
-    ingress = os.environ.get("INGRESS_HOST")
-    if ingress is None:
+    if (ingress := os.environ.get("INGRESS_HOST")) is None:
         return "http://localhost:8088"
     return f"https://{ingress}"
 

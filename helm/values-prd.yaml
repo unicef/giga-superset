@@ -194,8 +194,8 @@ image:
 imagePullSecrets: [ ]
 
 initImage:
-  repository: apache/superset
-  tag: dockerize
+  repository: jwilder/dockerize
+  tag: latest
   pullPolicy: IfNotPresent
 
 service:
@@ -213,8 +213,9 @@ ingress:
   ingressClassName: ~
   annotations:
     kubernetes.io/ingress.class: azure/application-gateway
-    appgw.ingress.kubernetes.io/appgw-ssl-certificate: "kv-cert-unitst"
+    appgw.ingress.kubernetes.io/appgw-ssl-certificate: "kv-cert-gigaglobal"
     appgw.ingress.kubernetes.io/ssl-redirect: "true"
+    appgw.ingress.kubernetes.io/request-timeout: "120"
   path: /
   pathType: Prefix
   hosts: [ ]
@@ -247,22 +248,7 @@ hostAliases: [ ]
 
 # Superset node configuration
 supersetNode:
-  replicaCount: 1
-  autoscaling:
-    enabled: false
-    minReplicas: 1
-    maxReplicas: 100
-    targetCPUUtilizationPercentage: 80
-    # targetMemoryUtilizationPercentage: 80
-  # -- Sets the [pod disruption budget](https://kubernetes.io/docs/tasks/run-application/configure-pdb/) for supersetNode pods
-  podDisruptionBudget:
-    # -- Whether the pod disruption budget should be created
-    enabled: false
-    # -- If set, maxUnavailable must not be set - see https://kubernetes.io/docs/tasks/run-application/configure-pdb/#specifying-a-poddisruptionbudget
-    minAvailable: 1
-    # -- If set, minAvailable must not be set - see https://kubernetes.io/docs/tasks/run-application/configure-pdb/#specifying-a-poddisruptionbudget
-    maxUnavailable: 1
-
+  replicaCount: 2
   # -- Startup command
   # @default -- See `values.yaml`
   command:
@@ -373,26 +359,12 @@ supersetNode:
 # Superset Celery worker configuration
 supersetWorker:
   replicaCount: 1
-  autoscaling:
-    enabled: false
-    minReplicas: 1
-    maxReplicas: 100
-    targetCPUUtilizationPercentage: 80
-    # targetMemoryUtilizationPercentage: 80
-  # -- Sets the [pod disruption budget](https://kubernetes.io/docs/tasks/run-application/configure-pdb/) for supersetWorker pods
-  podDisruptionBudget:
-    # -- Whether the pod disruption budget should be created
-    enabled: false
-    # -- If set, maxUnavailable must not be set - see https://kubernetes.io/docs/tasks/run-application/configure-pdb/#specifying-a-poddisruptionbudget
-    minAvailable: 1
-    # -- If set, minAvailable must not be set - see https://kubernetes.io/docs/tasks/run-application/configure-pdb/#specifying-a-poddisruptionbudget
-    maxUnavailable: 1
   # -- Worker startup command
   # @default -- a `celery worker` command
   command:
     - "/bin/sh"
     - "-c"
-    - ". {{ .Values.configMountPath }}/superset_bootstrap.sh; celery --app=superset.tasks.celery_app:app worker --pool=prefork -O fair -c 4"
+    - ". {{ .Values.configMountPath }}/superset_bootstrap.sh; celery --app=superset.tasks.celery_app:app worker"
   # -- If true, forces deployment to reload on each upgrade
   forceReload: false
   # -- Init container
