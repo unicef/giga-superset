@@ -243,13 +243,13 @@ def get_slack_api_token() -> str:
 
 SLACK_API_TOKEN = get_slack_api_token()
 
-WEBDRIVER_BASEURL = "http://superset:8088"
+WEBDRIVER_BASEURL = "http://superset:8088/"
 
 
 def get_baseurl_user_friendly() -> str:
     if (ingress := os.environ.get("INGRESS_HOST")) is None:
-        return "http://localhost:8088"
-    return f"https://{ingress}"
+        return "http://localhost:8088/"
+    return f"https://{ingress}/"
 
 
 WEBDRIVER_BASEURL_USER_FRIENDLY = get_baseurl_user_friendly()
