@@ -18,6 +18,12 @@ FEATURE_FLAGS = {
     "TAGGING_SYSTEM": True,
 }
 
+LANGUAGES = {
+    'en': {'flag': 'us', 'name': 'English'},
+    'es': {'flag': 'es', 'name': 'Spanish'},
+    'pt': {'flag': 'pt', 'name': 'Portuguese'},
+}
+
 ROW_LIMIT = 300_000
 
 
