@@ -21,8 +21,8 @@ jobs:
                 command: upgrade
                 chartType: Name
                 chartName: superset/superset
-                chartVersion: 0.12.6
                 releaseName: superset
+                chartVersion: 0.12.6
                 valueFile: "helm/values-$(deployEnv).yaml"
                 namespace: $(kubernetesNamespace)
                 arguments: >
@@ -32,5 +32,6 @@ jobs:
                   --set envFromSecrets[0]="giga-superset-secrets-$(deployEnv)"
                   --set image.repository="$(containerRegistryName).azurecr.io/giga-superset"
                   --set-string image.tag="$(Build.SourceVersion)"
+                  --set supersetWorker.extraContainers[0].image="$(containerRegistryName).azurecr.io/giga-superset:$(Build.SourceVersion)"
                   --set ingress.enabled=true
                   --set ingress.hosts[0]="$(ingressHost)"

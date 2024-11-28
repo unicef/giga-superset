@@ -8,6 +8,7 @@ from flask_appbuilder.const import AUTH_DB, AUTH_OAUTH
 from flask_caching.backends.rediscache import RedisCache
 from superset import SupersetSecurityManager
 from superset.tasks.types import ExecutorType
+from kombu import Queue
 
 logger = logging.getLogger(__name__)
 
@@ -16,6 +17,12 @@ ENABLE_PROXY_FIX = True
 FEATURE_FLAGS = {
     "ALERT_REPORTS": True,
     "TAGGING_SYSTEM": True,
+}
+
+LANGUAGES = {
+    'en': {'flag': 'us', 'name': 'English'},
+    'es': {'flag': 'es', 'name': 'Spanish'},
+    'pt': {'flag': 'pt', 'name': 'Portuguese'},
 }
 
 ROW_LIMIT = 300_000
@@ -158,7 +165,7 @@ class CeleryConfig:
     broker_url = REDIS_URL
     result_backend = REDIS_URL
     worker_log_level = "DEBUG"
-    worker_prefetch_multiplier = 10
+    worker_prefetch_multiplier = 1
     task_acks_late = True
     imports = (
         "superset.sql_lab",
@@ -184,7 +191,19 @@ class CeleryConfig:
             },
         },
     }
-
+    task_queues = (
+        Queue("cache_warmup", routing_key="cache_warmup"),
+    )
+    task_routes = {
+        "fetch_url": {
+            "queue": "cache_warmup",
+            "routing_key": "cache_warmup"
+        },
+        "cache-warmup": {
+            "queue": "cache_warmup",
+            "routing_key": "cache_warmup"
+        },
+    }
 
 CELERY_CONFIG = CeleryConfig
 
