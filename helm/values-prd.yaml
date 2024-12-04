@@ -386,7 +386,7 @@ supersetWorker:
       command:
         - /bin/sh
         - -c
-        - . /app/pythonpath/superset_bootstrap.sh; celery --app=superset.tasks.celery_app:app worker --queues=cache_warmup -n cache-warmup
+        - . /app/pythonpath/superset_bootstrap.sh; celery --app=superset.tasks.celery_app:app worker --concurrency 1 --queues=cache_warmup -n cache-warmup
       env:
         - name: SUPERSET_PORT
           value: "8088"
