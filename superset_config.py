@@ -17,6 +17,7 @@ ENABLE_PROXY_FIX = True
 FEATURE_FLAGS = {
     "ALERT_REPORTS": True,
     "TAGGING_SYSTEM": True,
+    "DASHBOARD_RBAC": True,
 }
 
 LANGUAGES = {
