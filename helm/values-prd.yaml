@@ -364,7 +364,7 @@ supersetWorker:
   command:
     - "/bin/sh"
     - "-c"
-    - ". {{ .Values.configMountPath }}/superset_bootstrap.sh; celery --app=superset.tasks.celery_app:app worker"
+    - ". {{ .Values.configMountPath }}/superset_bootstrap.sh; celery --app=superset.tasks.celery_app:app worker --queues=celery"
   # -- If true, forces deployment to reload on each upgrade
   forceReload: false
   # -- Init container
@@ -381,7 +381,37 @@ supersetWorker:
         - -c
         - dockerize -wait "tcp://$DB_HOST:$DB_PORT" -wait "tcp://$REDIS_HOST:$REDIS_PORT" -timeout 120s
   # -- Launch additional containers into supersetWorker pod
-  extraContainers: [ ]
+  extraContainers:
+    - name: cache-warmup
+      command:
+        - /bin/sh
+        - -c
+        - . /app/pythonpath/superset_bootstrap.sh; celery --app=superset.tasks.celery_app:app worker --concurrency 1 --queues=cache_warmup -n cache-warmup
+      env:
+        - name: SUPERSET_PORT
+          value: "8088"
+        - name: GUNICORN_TIMEOUT
+          value: "120"
+        - name: AZURE_CLIENT_ID
+          valueFrom:
+            secretKeyRef:
+              key: AZURE_CLIENT_ID
+              name: oi-superset-secrets-prd
+        - name: AZURE_CLIENT_SECRET
+          valueFrom:
+            secretKeyRef:
+              key: AZURE_CLIENT_SECRET
+              name: oi-superset-secrets-prd
+      envFrom:
+        - secretRef:
+            name: superset-env
+        - secretRef:
+            name: giga-superset-secrets-prd
+      volumeMounts:
+        - mountPath: /app/pythonpath
+          name: superset-config
+          readOnly: true
+
   # -- Annotations to be added to supersetWorker deployment
   deploymentAnnotations: { }
   # -- Labels to be added to supersetWorker deployment
