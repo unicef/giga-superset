@@ -287,9 +287,17 @@ supersetNode:
         - secretRef:
             name: "{{ tpl .Values.envFromSecret . }}"
       command:
-        - /bin/sh
-        - -c
-        - dockerize -wait "tcp://$DB_HOST:$DB_PORT" -timeout 120s
+        - "dockerize"
+      args:
+        - "-wait"
+        - "tcp://$(DB_HOST):$(DB_PORT)"
+        - "-timeout"
+        - "120s"
+      env:
+        - name: DB_HOST
+          value: "superset-postgresql"  # or your actual DB host service
+        - name: DB_PORT
+          value: "5432"
 
   # -- Launch additional containers into supersetNode pod
   extraContainers: [ ]
@@ -377,9 +385,14 @@ supersetWorker:
         - secretRef:
             name: "{{ tpl .Values.envFromSecret . }}"
       command:
-        - /bin/sh
-        - -c
-        - dockerize -wait "tcp://$DB_HOST:$DB_PORT" -wait "tcp://$REDIS_HOST:$REDIS_PORT" -timeout 120s
+        - dockerize
+      args:
+        - -wait
+        - "tcp://$(DB_HOST):$(DB_PORT)"
+        - -wait
+        - "tcp://$(REDIS_HOST):$(REDIS_PORT)"
+        - -timeout
+        - "120s"
   # -- Launch additional containers into supersetWorker pod
   extraContainers:
     - name: cache-warmup
@@ -495,9 +508,14 @@ supersetCeleryBeat:
         - secretRef:
             name: "{{ tpl .Values.envFromSecret . }}"
       command:
-        - /bin/sh
-        - -c
-        - dockerize -wait "tcp://$DB_HOST:$DB_PORT" -wait "tcp://$REDIS_HOST:$REDIS_PORT" -timeout 120s
+        - dockerize
+      args:
+        - -wait
+        - "tcp://$(DB_HOST):$(DB_PORT)"
+        - -wait
+        - "tcp://$(REDIS_HOST):$(REDIS_PORT)"
+        - -timeout
+        - "120s"
   # -- Launch additional containers into supersetCeleryBeat pods
   extraContainers: [ ]
   # -- Annotations to be added to supersetCeleryBeat deployment
@@ -594,9 +612,14 @@ supersetCeleryFlower:
         - secretRef:
             name: "{{ tpl .Values.envFromSecret . }}"
       command:
-        - /bin/sh
-        - -c
-        - dockerize -wait "tcp://$DB_HOST:$DB_PORT" -wait "tcp://$REDIS_HOST:$REDIS_PORT" -timeout 120s
+        - dockerize
+      args:
+        - -wait
+        - "tcp://$(DB_HOST):$(DB_PORT)"
+        - -wait
+        - "tcp://$(REDIS_HOST):$(REDIS_PORT)"
+        - -timeout
+        - "120s"
   # -- Launch additional containers into supersetCeleryFlower pods
   extraContainers: [ ]
   # -- Annotations to be added to supersetCeleryFlower deployment
@@ -762,9 +785,12 @@ init:
         - secretRef:
             name: "{{ tpl .Values.envFromSecret . }}"
       command:
-        - /bin/sh
-        - -c
-        - dockerize -wait "tcp://$DB_HOST:$DB_PORT" -timeout 120s
+        - dockerize
+      args:
+        - -wait
+        - "tcp://$(DB_HOST):$(DB_PORT)"
+        - -timeout
+        - "120s"
   # -- A Superset init script
   # @default -- a script to create admin user and initialize roles
   initscript: |-
