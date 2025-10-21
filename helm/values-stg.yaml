@@ -83,12 +83,12 @@ extraEnvRaw:
   - name: AZURE_CLIENT_ID
     valueFrom:
       secretKeyRef:
-        name: oi-superset-secrets-stg
+        name: giga-superset-secrets
         key: AZURE_CLIENT_ID
   - name: AZURE_CLIENT_SECRET
     valueFrom:
       secretKeyRef:
-        name: oi-superset-secrets-stg
+        name: giga-superset-secrets
         key: AZURE_CLIENT_SECRET
   # Load DB password from other secret (e.g. for zalando operator)
   # - name: DB_PASS
@@ -365,17 +365,17 @@ supersetWorker:
           valueFrom:
             secretKeyRef:
               key: AZURE_CLIENT_ID
-              name: oi-superset-secrets-stg
+              name: giga-superset-secrets
         - name: AZURE_CLIENT_SECRET
           valueFrom:
             secretKeyRef:
               key: AZURE_CLIENT_SECRET
-              name: oi-superset-secrets-stg
+              name: giga-superset-secrets
       envFrom:
         - secretRef:
             name: superset-env
         - secretRef:
-            name: giga-superset-secrets-stg
+            name: giga-superset-secrets
       volumeMounts:
         - mountPath: /app/pythonpath
           name: superset-config
@@ -752,6 +752,7 @@ postgresql:
     database: superset
 
   image:
+    registry: public.ecr.aws
     tag: "14.6.0-debian-11-r13"
 
   ## PostgreSQL Primary parameters
@@ -802,6 +803,9 @@ redis:
     existingSecretKey: ""
     ## Redis password
     password: superset
+  
+  image:
+    registry: public.ecr.aws
   ##
   ## Master configuration
   ##
