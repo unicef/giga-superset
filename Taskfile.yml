@@ -22,6 +22,11 @@ tasks:
       - docker build --tag {{.SUPERSET_IMAGE_REPOSITORY}}:{{.COMMIT_SHA}} .
       - docker push {{.SUPERSET_IMAGE_REPOSITORY}}:{{.COMMIT_SHA}}
 
+  build-local:
+    desc: Build local docker image
+    cmds:
+      - docker build -t superset-local:0.0.1 .
+
   helm-up:
     desc: Install/upgrade Superset Helm chart on a local cluster
     dir: helm
@@ -31,14 +36,20 @@ tasks:
         helm upgrade --install superset superset/superset
         --namespace giga-superset
         --version 0.12.6
-        --values values-prd.yaml
-        --set init.adminUser.username={{.ADMIN_USERNAME}}
-        --set init.adminUser.email={{.ADMIN_EMAIL}}
-        --set init.adminUser.password={{.ADMIN_PASSWORD}}
+        --values values-stg.yaml
+        --set init.adminUser.username=admin 
+        --set init.adminUser.email=admin@email.com 
+        --set init.adminUser.password=admin 
+        --set envFromSecrets[0]=giga-superset-secrets 
+        --set supersetWorker.extraContainers[0].image=superset-local:0.0.1
+        --set postgresql.auth.username=giga-superset
+        --set postgresql.auth.password=giga-superset
+        --set postgresql.auth.database=giga-superset
         --set postgresql.primary.readinessProbe.enabled=false
         --set postgresql.primary.livenessProbe.enabled=false
-        --set image.repository={{.SUPERSET_IMAGE_REPOSITORY}}
-        --set-string image.tag={{.COMMIT_SHA}}
+        --set image.repository=superset-local
+        --set image.tag=0.0.1
+
 
   helm-upi:
     desc: Install/upgrade Superset Helm chart on a cluster with pre-configured HTTPS ingress
@@ -84,3 +95,8 @@ tasks:
     cmds:
       - kubectl delete all --all --namespace giga-superset
       - kubectl delete pvc --all --namespace giga-superset
+
+  port-forward-postgres:
+    desc: Port forward PostgreSQL to localhost:5432 for database viewer connection
+    cmds:
+      - kubectl port-forward -n giga-superset svc/superset-postgresql 5432:5432
