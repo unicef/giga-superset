@@ -42,4 +42,6 @@ jobs:
                       DEPLOY_ENV: "$(deployEnv)"
                       SLACK_API_TOKEN: "$(slackToken)"
                       MAPBOX_API_KEY: "$(mapboxApiKey)"
+                      SMTP_USERNAME: "$(smtpUsername)"
+                      SMTP_PASSWORD: "$(smtpPassword)"
                       INGRESS_HOST: "$(ingressHost)"

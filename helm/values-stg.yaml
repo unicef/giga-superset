@@ -752,7 +752,9 @@ postgresql:
     database: superset
 
   image:
-    tag: "14.6.0-debian-11-r13"
+    registry: public.ecr.aws
+    repository: bitnami/postgresql
+    tag: 14.6.0-debian-11-r13
 
   ## PostgreSQL Primary parameters
   primary:
@@ -802,6 +804,12 @@ redis:
     existingSecretKey: ""
     ## Redis password
     password: superset
+
+  image:
+    registry: public.ecr.aws
+    repository: bitnami/redis
+    tag: 7.0.10-debian-11-r9
+
   ##
   ## Master configuration
   ##

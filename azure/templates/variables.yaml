@@ -16,4 +16,6 @@ variables:
   azureTenantId: $(AZURE_TENANT_ID)
   slackToken: $(SLACK_API_TOKEN)
   mapboxApiKey: $(MAPBOX_API_KEY)
+  smtpUsername: $(SMTP_USERNAME)
+  smtpPassword: $(SMTP_PASSWORD)
   ingressHost: $(INGRESS_HOST)

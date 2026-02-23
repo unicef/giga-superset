@@ -20,6 +20,9 @@ RUN pip install --no-cache-dir \
       "redis==4.6.0" \
       "gevent==24.2.1"
 
+RUN pip install --no-cache-dir --upgrade pip \
+    && pip install --no-cache-dir "setuptools<70" wheel
+
 COPY --chown=superset ./superset_config.py /app
 
 USER superset

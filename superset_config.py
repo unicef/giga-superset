@@ -149,6 +149,14 @@ SESSION_COOKIE_SECURE = True
 
 SESSION_COOKIE_HTTPONLY = False
 
+# email
+SMTP_HOST = "in-v3.mailjet.com"
+SMTP_PORT = 587
+SMTP_STARTTLS = True
+SMTP_SSL = False
+SMTP_USER = os.environ.get("SMTP_USERNAME")
+SMTP_PASSWORD = os.environ.get("SMTP_PASSWORD")
+SMTP_MAIL_FROM = "Superset <giga-developers@mail.unicef.org>"
 
 # Redis
 
