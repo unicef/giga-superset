@@ -18,6 +18,7 @@ FEATURE_FLAGS = {
     "ALERT_REPORTS": True,
     "TAGGING_SYSTEM": True,
     "DASHBOARD_RBAC": True,
+    "ESCAPE_MARKDOWN_HTML": False,
 }
 
 LANGUAGES = {
