@@ -864,9 +864,9 @@ postgresql:
       adminPasswordKey: POSTGRESQL_PASSWORD
 
   image:
-    registry: public.ecr.aws
+    registry: uniappsoigiga.azurecr.io
     repository: bitnami/postgresql
-    tag: 14.6.0-debian-11-r13
+    tag: 14.6.0-debian-11-r33
 
   ## PostgreSQL Primary parameters
   primary:
@@ -916,9 +916,9 @@ redis:
   ## Set architecture to standalone/replication
   architecture: standalone
   image:
-    registry: public.ecr.aws
+    registry: uniappsoigiga.azurecr.io
     repository: bitnami/redis
-    tag: 7.0.10-debian-11-r9
+    tag: 7.2.4-debian-12-r16
   ##
   ## Auth configuration:
   ##
