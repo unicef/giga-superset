@@ -20,6 +20,7 @@ FEATURE_FLAGS = {
     "DASHBOARD_RBAC": True,
     "ESCAPE_MARKDOWN_HTML": False,
     "ENABLE_TEMPLATE_PROCESSING": True,
+    "ENABLE_JAVASCRIPT_CONTROLS": True,
 }
 
 LANGUAGES = {
@@ -233,10 +234,8 @@ RESULTS_BACKEND = RedisCache(
     key_prefix="superset_results",
 )
 
-# Talisman
-
-TALISMAN_ENABLED = False
-
+# --- Talisman / CSP ---
+TALISMAN_ENABLED = True  # was False
 TALISMAN_CONFIG = {
     "force_https": False,
     "force_https_permanent": False,
@@ -249,7 +248,8 @@ TALISMAN_CONFIG = {
         "img-src": ["*", "data:", "blob:"],
         "media-src": "*",
         "style-src": ["'self'", "'unsafe-inline'"],
-        "script-src": ["'self'", "'strict-dynamic'"],
+        "script-src": ["'self'", "'strict-dynamic'", "'unsafe-eval'"],  # unsafe-eval required for JS tooltip controls
+        "connect-src": ["'self'", "https://api.mapbox.com", "https://events.mapbox.com"],  # new — needed for Mapbox tile requests
     },
     "content_security_policy_nonce_in": ["script-src"],
     "session_cookie_secure": True,
